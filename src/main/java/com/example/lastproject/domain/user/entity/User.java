@@ -29,8 +29,6 @@ public class User extends Timestamped {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    private Boolean isDeleted = false;
-
     public User(String email, String password, UserRole userRole) {
         this.email = email;
         this.password = password;
