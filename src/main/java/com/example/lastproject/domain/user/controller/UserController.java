@@ -20,8 +20,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 
-    @PutMapping("/users")
-    public void changePassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody UserChangePasswordRequest userChangePasswordRequest) {
-        userService.changePassword(authUser.getUserId(), userChangePasswordRequest);
+    @PatchMapping("/users")
+    public ResponseEntity<UserResponse> changePassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody UserChangePasswordRequest userChangePasswordRequest) {
+        UserResponse response = userService.changePassword(authUser.getUserId(), userChangePasswordRequest);
+        return ResponseEntity.ok(response);
     }
 }

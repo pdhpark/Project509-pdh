@@ -1,9 +1,9 @@
 package com.example.lastproject.domain.user.entity;
 
-
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.user.enums.UserRole;
+import com.example.lastproject.domain.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +26,19 @@ public class User extends Timestamped {
     @Column(nullable = false)
     private String password;
 
+    private String name;
+
+    private String nickname;
+
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus userStatus;
+
+//    어느 용도인지??
+//    private LocalDateTime createTime;
+//    private LocalDateTime updateTime;
 
     public User(String email, String password, UserRole userRole) {
         this.email = email;
@@ -52,10 +63,6 @@ public class User extends Timestamped {
     public void changePassword(String password) {
         this.password = password;
     }
-
-//    public void updateRole(UserRole userRole) {
-//        this.userRole = userRole;
-//    }
 
     // 탈퇴 처리 status ( ENUM ) 으로 로직 변경
 //    public void toggleDelete() {
