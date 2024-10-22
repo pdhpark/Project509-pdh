@@ -20,8 +20,11 @@ public enum ErrorCode {
     // Token ErrorCode
     TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s"),
 
-
-
+    // User ErrorCode
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s"),
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "변경 실패 : %s"),
+    SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
+    SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
 
 
 
