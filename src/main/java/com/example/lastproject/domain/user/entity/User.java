@@ -57,7 +57,8 @@ public class User extends Timestamped {
 //        this.userRole = userRole;
 //    }
 
-    public void toggleDelete() {
-        this.isDeleted = true;
-    }
+    // 탈퇴 처리 status ( ENUM ) 으로 로직 변경
+//    public void toggleDelete() {
+//        this.isDeleted = true;
+//    }
 }

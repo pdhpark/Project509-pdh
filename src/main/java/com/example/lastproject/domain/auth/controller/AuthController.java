@@ -30,9 +30,9 @@ public class AuthController {
         return authService.signin(signinRequest);
     }
 
-    @GetMapping("/withdrawal") // 회원 탈퇴
-    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal AuthUser authUser) {
-        authService.withdrawal(authUser);
-        return ResponseEntity.ok().build();
-    }
+//    @GetMapping("/withdrawal") // 회원 탈퇴
+//    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal AuthUser authUser) {
+//        authService.withdrawal(authUser);
+//        return ResponseEntity.ok().build();
+//    }
 }
