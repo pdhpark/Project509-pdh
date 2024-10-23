@@ -3,11 +3,14 @@ package com.example.lastproject.domain.user.entity;
 
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.domain.likeitem.entity.LikeItem;
 import com.example.lastproject.domain.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -30,6 +33,9 @@ public class User extends Timestamped {
     private UserRole userRole;
 
     private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "like_item_id")
+    private List<LikeItem> likeItems;
 
     public User(String email, String password, UserRole userRole) {
         this.email = email;

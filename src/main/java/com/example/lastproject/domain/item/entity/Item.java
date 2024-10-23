@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Table
@@ -15,11 +16,14 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private int price;
 
     @OneToMany(mappedBy = "like")
-    private List<LikeItem> likeItems;
+    private List<LikeItem> likeItems = new ArrayList<>();
 }
