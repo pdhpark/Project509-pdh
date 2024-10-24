@@ -1,6 +1,7 @@
 package com.example.lastproject.domain.user.controller;
 
 import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.domain.user.dto.UserUpdateRequest;
 import com.example.lastproject.domain.user.dto.request.UserChangePasswordRequest;
 import com.example.lastproject.domain.user.dto.response.UserResponse;
 import com.example.lastproject.domain.user.service.UserService;
@@ -20,9 +21,19 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 
-    @PatchMapping("/users")
-    public ResponseEntity<UserResponse> changePassword(@AuthenticationPrincipal AuthUser authUser, @RequestBody UserChangePasswordRequest userChangePasswordRequest) {
+    @PutMapping("/users/password")
+    public ResponseEntity<UserResponse> changePassword(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody UserChangePasswordRequest userChangePasswordRequest) {
         UserResponse response = userService.changePassword(authUser.getUserId(), userChangePasswordRequest);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/users")
+    public ResponseEntity<UserResponse> updateUser(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody UserUpdateRequest userUpdateRequest
+    ) {
+        return ResponseEntity.ok(userService.updateUser(authUser.getUserId(), userUpdateRequest));
     }
 }
