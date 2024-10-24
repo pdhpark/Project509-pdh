@@ -63,11 +63,11 @@ public class AuthService {
         return new SigninResponse(bearerToken);
     }
 
-    @Transactional
-    public void withdrawal(AuthUser authUser) {
-        User user = userRepository.findById(authUser.getUserId()).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.")
-        );
-        user.toggleDelete();
-    }
+//    @Transactional
+//    public void withdrawal(AuthUser authUser) {
+//        User user = userRepository.findById(authUser.getUserId()).orElseThrow(
+//                () -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.")
+//        );
+//        user.toggleDelete();
+//    }
 }
