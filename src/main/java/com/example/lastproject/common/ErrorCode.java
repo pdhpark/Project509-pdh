@@ -42,6 +42,29 @@ public enum ErrorCode {
 
 
     // Party ErrorCode
+    PARTY_NOT_FOUND(HttpStatus.NOT_FOUND, "파티를 찾을 수 없습니다."),
+
+    // PartyMember ErrorCode
+
+
+    // Market ErrorCode
+
+
+    // Item ErrorCode
+
+
+    // Notification ErrorCode
+
+
+    // Chat ErrorCode
+
+    // UserReview ErrorCode
+
+
+    // UserPenalty ErrorCode
+
+
+    // Party ErrorCode
 
 
     // PartyMember ErrorCode
@@ -55,6 +78,10 @@ public enum ErrorCode {
 
     // Notification ErrorCode
 
+
+    // OpenApi ErrorCode
+    API_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "API 요청이 잘못되었습니다."),
+    API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 인증키를 찾을 수 없습니다."),
 
     // Chat ErrorCode
 
