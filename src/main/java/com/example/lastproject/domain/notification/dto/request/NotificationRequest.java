@@ -1,4 +1,4 @@
-package com.example.lastproject.domain.notification.dto;
+package com.example.lastproject.domain.notification.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

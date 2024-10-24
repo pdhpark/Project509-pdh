@@ -1,4 +1,4 @@
-package com.example.lastproject.domain.notification;
+package com.example.lastproject.domain.notification.entity;
 
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.user.entity.User;

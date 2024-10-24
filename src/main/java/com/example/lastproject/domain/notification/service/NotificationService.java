@@ -1,7 +1,9 @@
-package com.example.lastproject.domain.notification;
+package com.example.lastproject.domain.notification.service;
 
 import com.example.lastproject.domain.auth.entity.AuthUser;
-import com.example.lastproject.domain.notification.dto.NotificationResponse;
+import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
+import com.example.lastproject.domain.notification.entity.Notification;
+import com.example.lastproject.domain.notification.repository.NotificationRepository;
 import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

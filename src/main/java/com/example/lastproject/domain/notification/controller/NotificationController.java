@@ -1,8 +1,9 @@
-package com.example.lastproject.domain.notification;
+package com.example.lastproject.domain.notification.controller;
 
 import com.example.lastproject.domain.auth.entity.AuthUser;
-import com.example.lastproject.domain.notification.dto.NotificationRequest;
-import com.example.lastproject.domain.notification.dto.NotificationResponse;
+import com.example.lastproject.domain.notification.service.NotificationService;
+import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
+import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
