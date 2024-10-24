@@ -1,5 +1,6 @@
 .gradle
 application.properties
+application.yaml
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
