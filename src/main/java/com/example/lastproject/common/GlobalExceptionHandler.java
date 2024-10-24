@@ -2,6 +2,7 @@ package com.example.lastproject.common;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -10,6 +11,20 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * 포괄 예외 처리 <br />
+     * -
+     * 이 핸들러는 세부 예외 처리보다 낮은 우선 순위로 처리되는 예외 처리 핸들러입니다. <br />
+     * 주로 예기치 않은 에러 상황에 해당 에러가 반환됩니다.
+     * @param ex 오류 상태
+     * @return 오류 응답을 포함한 ResponseEntity 객체
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        return getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
     /**
      * 비밀번호 오류 Exception
      * @param ex 오류 상태, 메시지
@@ -20,8 +35,9 @@ public class GlobalExceptionHandler {
         return getErrorResponse(ex.getErrorCode().getStatus(), ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+    // 핸들러 구현 수정 필요
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
         return getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 

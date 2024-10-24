@@ -1,5 +1,7 @@
 package com.example.lastproject.domain.user.enums;
 
+import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +20,9 @@ public enum UserRole {
         return Arrays.stream(UserRole.values())
                 .filter(r -> r.name().equalsIgnoreCase(role))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 UserRole"));
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USERROLE_NOT_FOUND, "유효하지 않은 유저 권한입니다.")
+                );
     }
 
     public static class Authority {
