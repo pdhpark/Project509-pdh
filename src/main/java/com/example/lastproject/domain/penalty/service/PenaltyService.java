@@ -2,6 +2,8 @@ package com.example.lastproject.domain.penalty.service;
 
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.ErrorCode;
+import com.example.lastproject.domain.party.entity.Party;
+import com.example.lastproject.domain.party.repository.PartyRepository;
 import com.example.lastproject.domain.penalty.dto.request.PenaltyRequest;
 import com.example.lastproject.domain.penalty.entity.Penalty;
 import com.example.lastproject.domain.penalty.repository.PenaltyRepository;
@@ -19,6 +21,7 @@ public class PenaltyService {
 
     private final PenaltyRepository penaltyRepository;
     private final UserRepository userRepository ;
+    private final PartyRepository partyRepository ;
 
     public void sendPenalty(Long partyId, PenaltyRequest request) {
 
@@ -26,8 +29,8 @@ public class PenaltyService {
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.")
         );
 
-        Party party = partyRepository.findByPartyId(partyId).orElseThrow(
-                () -> new CustomException(ErrorCode.PARTY_NOT_FOUND, "파티를 찾을 수 없습니다.")
+        Party party = partyRepository.findById(partyId).orElseThrow(
+                () -> new CustomException(ErrorCode.PARTY_NOT_FOUND)
         );
 
         Penalty penalty = new Penalty(

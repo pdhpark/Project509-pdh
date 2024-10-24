@@ -1,6 +1,7 @@
 package com.example.lastproject.domain.penalty.entity;
 
 import com.example.lastproject.common.Timestamped;
+import com.example.lastproject.domain.party.entity.Party;
 import com.example.lastproject.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
