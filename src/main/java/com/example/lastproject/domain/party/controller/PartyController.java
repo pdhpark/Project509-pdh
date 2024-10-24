@@ -20,10 +20,10 @@ public class PartyController {
         this.partyService = partyService;
     }
 
-    @PostMapping
-    public ResponseEntity<PartyResponse> createParty(
-            @RequestBody PartyCreateRequest request) {
-        return ResponseEntity.ok(partyService.createParty(request));
-    }
+//    @PostMapping
+//    public ResponseEntity<PartyResponse> createParty(
+//            @RequestBody PartyCreateRequest request) {
+//        return ResponseEntity.ok(partyService.createParty(request));
+//    }
 
 }
