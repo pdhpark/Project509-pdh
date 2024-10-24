@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class SigninResponse {
 
-    private final String bearerToken;
+    private final String msg;
 
-    public SigninResponse(String bearerToken) {
-        this.bearerToken = bearerToken;
+    public SigninResponse() {
+        this.msg = "로그인되었습니다.";
     }
 }

@@ -21,6 +21,11 @@ public class SignupRequest {
     @NotBlank(message = "비밀번호는 공백일 수 없습니다.")
     private String password;
 
+    private String nickname;
+
+    @NotBlank(message = "주소는 공백일 수 없습니다.")
+    private String address;
+
     @NotBlank(message = "권한은 공백일 수 없습니다.")
     private String userRole;
 }

@@ -5,13 +5,13 @@ import com.example.lastproject.common.ErrorCode;
 import com.example.lastproject.config.JwtUtil;
 import com.example.lastproject.domain.auth.dto.request.SigninRequest;
 import com.example.lastproject.domain.auth.dto.request.SignupRequest;
-import com.example.lastproject.domain.auth.dto.response.SigninResponse;
 import com.example.lastproject.domain.auth.dto.response.SignupResponse;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.user.entity.User;
 import com.example.lastproject.domain.user.enums.UserRole;
 import com.example.lastproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +25,12 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    /**
+     * 회원가입
+     *
+     * @param signupRequest 회원가입 시 필요한 json body ( 이메일, 비밀번호, 닉네임, 주소, 권한 )
+     * @return responseDTO ( "${닉네임} 님의 회원가입이 완료되었습니다" )
+     */
     @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
 
@@ -39,17 +45,24 @@ public class AuthService {
         User newUser = new User(
                 signupRequest.getEmail(),
                 encodedPassword,
+                signupRequest.getNickname(),
+                signupRequest.getAddress(),
                 userRole
         );
         User savedUser = userRepository.save(newUser);
 
-        return new SignupResponse(savedUser.getEmail(), savedUser.getPassword(), userRole);
+        return new SignupResponse(savedUser.getNickname());
     }
 
-    public SigninResponse signin(SigninRequest signinRequest) {
+    /**
+     * 로그인
+     *
+     * @param signinRequest 로그인 시 필요한 json body ( 이메일, 비밀번호 )
+     * @return 로그인 후 발급되는 토큰 반환 ( "Bearer eyJ~" )
+     */
+    public String signin(SigninRequest signinRequest) {
         User user = userRepository.findByEmail(signinRequest.getEmail()).orElseThrow(
                 () -> new CustomException(ErrorCode.SIGNIN_ERROR, "가입되지 않은 유저입니다.")
-
         );
 
 
@@ -58,16 +71,19 @@ public class AuthService {
             throw new CustomException(ErrorCode.SIGNIN_ERROR, "잘못된 비밀번호입니다.");
         }
 
-        String bearerToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
-
-        return new SigninResponse(bearerToken);
+        return jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
     }
 
-//    @Transactional
-//    public void withdrawal(AuthUser authUser) {
-//        User user = userRepository.findById(authUser.getUserId()).orElseThrow(
-//                () -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.")
-//        );
-//        user.toggleDelete();
-//    }
+    /**
+     * 회원 탈퇴
+     *
+     * @param authUser 로그인한 사용자
+     */
+    @Transactional
+    public void withdrawal(@AuthenticationPrincipal AuthUser authUser) {
+        User user = userRepository.findById(authUser.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.")
+        );
+        user.toggleDelete();
+    }
 }

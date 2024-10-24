@@ -5,13 +5,12 @@ import lombok.Getter;
 @Getter
 public class UserResponse {
 
-    private final Long id;
     private final String email;
-    private final String changePwMsg;
+    private final String profileImg = "com/example/lastproject/domain/user/assets/img/img.png";
+    private final String msg;
 
-    public UserResponse(Long id, String email, String changePwMsg) {
-        this.id = id;
+    public UserResponse(String email, String nickname, String msg) {
         this.email = email;
-        this.changePwMsg = changePwMsg;
+        this.msg = nickname + msg;
     }
 }
