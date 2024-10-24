@@ -29,7 +29,6 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증 실패 : %s"),
     SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
     SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인 실패 : %s"),
-    SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인 실패 : %s"),
 
     // UserReview ErrorCode
 
