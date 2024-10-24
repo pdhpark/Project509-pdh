@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/like-items")
 public class LikeItemController {
-    private final LikeItemService likeItemService;
 
+    private final LikeItemService likeItemService;
 
     // 아이템 품목조회
     @GetMapping

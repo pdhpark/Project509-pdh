@@ -1,13 +1,14 @@
 package com.example.lastproject.domain.item.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.lastproject.domain.likeitem.entity.LikeItem;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -23,6 +24,6 @@ public class Item {
     private String category;
     private String productName;
 
-//    @OneToMany(mappedBy = "item")
-//    private List<LikeItem> likeItems = new ArrayList<>();
+    @OneToMany(mappedBy = "item")
+    private List<LikeItem> likeItems = new ArrayList<>();
 }
