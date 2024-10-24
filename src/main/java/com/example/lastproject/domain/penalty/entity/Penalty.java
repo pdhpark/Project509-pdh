@@ -22,7 +22,7 @@ public class Penalty extends Timestamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "party_id")
+    @JoinColumn(name = "user_id")
     private Party partyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
