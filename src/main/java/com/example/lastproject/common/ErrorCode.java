@@ -29,6 +29,7 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증 실패 : %s"),
     SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
     SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인 실패 : %s"),
+    SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인 실패 : %s"),
 
     // UserReview ErrorCode
 
@@ -53,9 +54,33 @@ public enum ErrorCode {
 
     // Chat ErrorCode
 
+    // UserReview ErrorCode
+
+
+    // UserPenalty ErrorCode
+
+
+    // Party ErrorCode
+
+
+    // PartyMember ErrorCode
+
+
+    // Market ErrorCode
+
+
+    // Item ErrorCode
+
+
+    // Notification ErrorCode
+
+
     // OpenApi ErrorCode
     API_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "API 요청이 잘못되었습니다."),
     API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 인증키를 찾을 수 없습니다."),
+
+    // Chat ErrorCode
+
 
     // 아래 코드 위에 ErrorCode 작성
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾지 못했습니다.");
@@ -70,6 +95,7 @@ public enum ErrorCode {
 
     /**
      * 에러 메시지를 커스텀하는 메서드
+     *
      * @param detail 커스텀할 디테일한 메시지 파라미터
      * @return 커스텀된 에러 메시지 문자열
      */
