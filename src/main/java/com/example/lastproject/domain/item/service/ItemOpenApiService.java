@@ -25,7 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ItemOpenApiService {
 
-    @Value("${ITEM_API_KEY}")
+//    @Value("${ITEM_API_KEY}")
     private String apiKey;
 
     private final RestTemplate restTemplate;
