@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -34,8 +35,8 @@ public class User extends Timestamped {
 
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "like_item_id")
-    private List<LikeItem> likeItems;
+    @OneToMany(mappedBy = "user")
+    private List<LikeItem> likeItems = new ArrayList<>();
 
     public User(String email, String password, UserRole userRole) {
         this.email = email;

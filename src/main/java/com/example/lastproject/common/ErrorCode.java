@@ -26,8 +26,9 @@ public enum ErrorCode {
     SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
     SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
 
-
-
+    // OpenApi ErrorCode
+    API_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "API 요청이 잘못되었습니다."),
+    API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 인증키를 찾을 수 없습니다."),
 
     // 아래 코드 위에 ErrorCode 작성
     NOT_FOUND(HttpStatus.NOT_FOUND, "찾지못했습니다.");
