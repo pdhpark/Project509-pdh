@@ -1,10 +1,10 @@
 package com.example.lastproject.domain.user.entity;
 
-
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.likeitem.entity.LikeItem;
 import com.example.lastproject.domain.user.enums.UserRole;
+import com.example.lastproject.domain.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,10 +30,19 @@ public class User extends Timestamped {
     @Column(nullable = false)
     private String password;
 
+    private String name;
+
+    private String nickname;
+
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    private Boolean isDeleted = false;
+    @Enumerated(EnumType.STRING)
+    private UserStatus userStatus;
+
+//    어느 용도인지??
+//    private LocalDateTime createTime;
+//    private LocalDateTime updateTime;
 
     @OneToMany(mappedBy = "user")
     private List<LikeItem> likeItems = new ArrayList<>();
@@ -62,11 +71,8 @@ public class User extends Timestamped {
         this.password = password;
     }
 
-//    public void updateRole(UserRole userRole) {
-//        this.userRole = userRole;
+    // 탈퇴 처리 status ( ENUM ) 으로 로직 변경
+//    public void toggleDelete() {
+//        this.isDeleted = true;
 //    }
-
-    public void toggleDelete() {
-        this.isDeleted = true;
-    }
 }
