@@ -2,12 +2,16 @@ package com.example.lastproject.domain.user.entity;
 
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.domain.likeitem.entity.LikeItem;
 import com.example.lastproject.domain.user.enums.UserRole;
 import com.example.lastproject.domain.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -39,6 +43,9 @@ public class User extends Timestamped {
 //    어느 용도인지??
 //    private LocalDateTime createTime;
 //    private LocalDateTime updateTime;
+
+    @OneToMany(mappedBy = "user")
+    private List<LikeItem> likeItems = new ArrayList<>();
 
     public User(String email, String password, UserRole userRole) {
         this.email = email;

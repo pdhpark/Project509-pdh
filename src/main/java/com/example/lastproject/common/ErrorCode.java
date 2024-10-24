@@ -53,6 +53,33 @@ public enum ErrorCode {
 
     // Chat ErrorCode
 
+    // UserReview ErrorCode
+
+
+    // UserPenalty ErrorCode
+
+
+    // Party ErrorCode
+
+
+    // PartyMember ErrorCode
+
+
+    // Market ErrorCode
+
+
+    // Item ErrorCode
+
+
+    // Notification ErrorCode
+
+
+    // OpenApi ErrorCode
+    API_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "API 요청이 잘못되었습니다."),
+    API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 인증키를 찾을 수 없습니다."),
+
+    // Chat ErrorCode
+
 
     // 아래 코드 위에 ErrorCode 작성
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾지 못했습니다.");
