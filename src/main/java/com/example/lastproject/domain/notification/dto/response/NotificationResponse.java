@@ -11,6 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class NotificationResponse {
     private Long notificationId;
-    private String message;        // 알림 메시지
-    private LocalDateTime created_at;
+    private String message;
+    private LocalDateTime createdAt;
 }

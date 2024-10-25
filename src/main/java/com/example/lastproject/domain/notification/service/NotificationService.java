@@ -67,6 +67,7 @@ public class NotificationService {
         return emitter;
     }
 
+    // 최신순 알림 목록 조회
     public List<NotificationResponse> getNotifications(Long receiverId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId);
         log.info("receiverId: {}", receiverId);

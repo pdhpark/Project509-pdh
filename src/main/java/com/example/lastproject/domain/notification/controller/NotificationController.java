@@ -24,8 +24,10 @@ public class NotificationController {
     }
 
     // 알림 스트리밍
-    @GetMapping("/notifications/stream")
-    public SseEmitter streamNotifications(@AuthenticationPrincipal AuthUser authUser) {
+    @GetMapping(value = "/notifications/{receiverId}/stream", produces = "text/event-stream")
+    public SseEmitter streamNotifications(@AuthenticationPrincipal AuthUser authUser,
+                                          @PathVariable Long receiverId,
+                                          @RequestHeader(value="Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
         return notificationService.createEmitter(authUser.getUserId());
     }
 
