@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Entity
 @NoArgsConstructor
@@ -45,8 +43,8 @@ public class User extends Timestamped {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus = UserStatus.ACTIVATED;
 
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
+    @OneToMany(mappedBy = "user")
+    private List<LikeItem> likeItems = new ArrayList<>();
 
     public User(String email, String password, String nickname, String address, UserRole userRole) {
         this.email = email;
@@ -74,14 +72,13 @@ public class User extends Timestamped {
         this.password = password;
     }
 
-    // 탈퇴 처리 status ( ENUM ) 으로 로직 변경
-    public void toggleDelete() {
-        this.userStatus = UserStatus.DELETED;
-    }
-
     public void update(UserUpdateRequest request) {
         this.email = request.getEmail();
         this.nickname = request.getNickname();
         this.address = request.getAddress();
+    }
+
+    public void toggleDelete() {
+        this.userStatus = UserStatus.DELETED;
     }
 }

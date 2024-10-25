@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.auth.service;
 
 import com.example.lastproject.common.CustomException;
-import com.example.lastproject.common.ErrorCode;
+import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.config.JwtUtil;
 import com.example.lastproject.domain.auth.dto.request.SigninRequest;
 import com.example.lastproject.domain.auth.dto.request.SignupRequest;
@@ -36,7 +36,7 @@ public class AuthService {
     signup(SignupRequest signupRequest) {
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new CustomException(ErrorCode.SIGNUP_ERROR, "이미 존재하는 이메일입니다.");
+            throw new CustomException(ErrorCode.SIGNUP_ERROR);
         }
 
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
@@ -63,13 +63,13 @@ public class AuthService {
      */
     public String signin(SigninRequest signinRequest) {
         User user = userRepository.findByEmail(signinRequest.getEmail()).orElseThrow(
-                () -> new CustomException(ErrorCode.SIGNIN_ERROR, "가입되지 않은 유저입니다.")
+                () -> new CustomException(ErrorCode.SIGNIN_ERROR)
         );
 
 
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401을 반환합니다.
         if (!passwordEncoder.matches(signinRequest.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.SIGNIN_ERROR, "잘못된 비밀번호입니다.");
+            throw new CustomException(ErrorCode.SIGNIN_ERROR);
         }
 
         return jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
@@ -83,7 +83,7 @@ public class AuthService {
     @Transactional
     public void withdrawal(@AuthenticationPrincipal AuthUser authUser) {
         User user = userRepository.findById(authUser.getUserId()).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.")
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         user.toggleDelete();
     }

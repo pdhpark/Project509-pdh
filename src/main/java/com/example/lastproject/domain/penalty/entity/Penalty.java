@@ -8,13 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "penalty")
 public class Penalty extends Timestamped {
 
     @Id
@@ -22,15 +20,12 @@ public class Penalty extends Timestamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "party_id")
     private Party partyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "party_id")
+    @JoinColumn(name = "user_id")
     private User userId;
-
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
 
     public Penalty(Party partyId, User userId) {
         this.partyId = partyId;
