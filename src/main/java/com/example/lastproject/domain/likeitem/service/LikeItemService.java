@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.likeitem.service;
 
 import com.example.lastproject.common.CustomException;
-import com.example.lastproject.common.ErrorCode;
+import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.service.ItemService;
@@ -30,7 +30,7 @@ public class LikeItemService {
 
         Item item = itemService.validateEntity(itemId);
 
-        LikeItem likeItem = new LikeItem(user,item);
+        LikeItem likeItem = new LikeItem(user, item);
 
         likeItemRepository.save(likeItem);
     }
