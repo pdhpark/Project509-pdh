@@ -15,17 +15,30 @@ public class ItemController {
     private final ItemOpenApiService itemOpenApiService;
     private final ItemService itemService;
 
-    // 표준품목 데이터 업데이트
+    /**
+     * 표준 품목 업데이트
+     * @return 성공메시지
+     */
     @PostMapping("/open-api")
     public ResponseEntity<String> getItemFromOpenApi(){
         return ResponseEntity.ok(itemOpenApiService.getItemFromOpenApi());
     }
-    // 품목 추가
+
+    /**
+     *
+     * @param requestDto 추가할 품목 데이터 객체
+     * @return 성공메시지
+     */
     @PostMapping()
     public ResponseEntity<String> addItem(@RequestBody ItemRequestDto requestDto){
         return ResponseEntity.ok(itemService.addItem(requestDto));
     }
-    // 품목 삭제
+
+    /**
+     *
+     * @param itemId 품목 삭제할 아이디값
+     * @return 성공메시지
+     */
     @DeleteMapping("/{itemId}")
     public ResponseEntity<String> deleteItem(@PathVariable Long itemId ){
         return ResponseEntity.ok(itemService.deleteItem(itemId));
