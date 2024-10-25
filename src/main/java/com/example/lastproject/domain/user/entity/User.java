@@ -48,9 +48,6 @@ public class User extends Timestamped {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
-    @OneToMany(mappedBy = "user")
-    private List<LikeItem> likeItems = new ArrayList<>();
-
     public User(String email, String password, String nickname, String address, UserRole userRole) {
         this.email = email;
         this.password = password;
