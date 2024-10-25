@@ -1,4 +1,4 @@
-package com.example.lastproject.common;
+package com.example.lastproject.common.enums;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -9,34 +9,30 @@ public enum ErrorCode {
     /**
      * 선언 예시) <br />
      * 오류 코드는 HttpStatus ENUM 클래스 참고  <br />
-     * 1) 예외명(대문자+'_') + (HttpStatus.오류코드, "메세지") - only 에러 메시지  <br />
-     * 2) 예외명(대문자+'_') + (HttpStatus.오류코드, "에러 유형 : %s") - 유형 + 에러 메시지  <br />
+     * 예외명(대문자+'_') + (HttpStatus.오류코드, "메세지")  <br />
      * STORE_FORBIDDEN(HttpStatus.FORBIDDEN,"사장님 권한을 가진 사용자만 가게를 생성할 수 있습니다."),  <br />
      * STORE_BAD_REQUEST(HttpStatus.BAD_REQUEST,"사장님은 최대 3개의 가게까지만 운영할 수 있습니다."),  <br />
-     * STORE_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 가게를 찾을 수 없습니다."),  <br />
-     * TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s"),  <br />
-     * USER_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s");  <br />
-     *  <br />
+     * STORE_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 가게를 찾을 수 없습니다.");  <br />
+     * <br />
      * ======  <br />
-     *  <br />
+     * <br />
      * 서비스 내 사용 예시)  <br />
      * throw new CustomException(ErrorCode.STORE_FORBIDDEN);  <br />
      */
 
 
-    // TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s"),
     // Token ErrorCode
-    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s"),
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다."),
 
     // User ErrorCode
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 조회 실패"),
-    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증 실패 : %s"),
-    SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입 실패 : %s"),
-    SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인 실패 : %s"),
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "변경 실패 : %s"),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 조회에 실패했습니다."),
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증에 실패했습니다."),
+    SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입에 실패했습니다."),
+    SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인에 실패했습니다."),
+    NO_CONTENTS(HttpStatus.BAD_REQUEST, "변경된 정보가 없습니다."),
 
     // UserRole ErrorCode
-    USERROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "조회 실패 : %s"),
+    USERROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "조회에 실패했습니다."),
 
     // UserPenalty ErrorCode
 
@@ -95,15 +91,5 @@ public enum ErrorCode {
     ErrorCode(HttpStatus httpStatus, String message) {
         this.status = httpStatus;
         this.message = message;
-    }
-
-    /**
-     * 에러 메시지를 커스텀하는 메서드
-     *
-     * @param detail 커스텀할 디테일한 메시지 파라미터
-     * @return 커스텀된 에러 메시지 문자열
-     */
-    public String customMessage(String detail) {
-        return String.format(message, detail);
     }
 }

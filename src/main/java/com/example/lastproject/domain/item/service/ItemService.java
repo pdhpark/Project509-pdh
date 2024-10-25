@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.item.service;
 
 import com.example.lastproject.common.CustomException;
-import com.example.lastproject.common.ErrorCode;
+import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.item.dto.request.ItemRequestDto;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
