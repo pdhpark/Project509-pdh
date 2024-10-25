@@ -24,8 +24,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ItemOpenApiService {
-    // api 인증키 주입 필요
-    @Value("${ITEM_API_KEY}")
+    // api 인증키 주입 필요(다른 파트 테스트시 충돌 방지 주석처리)
+//    @Value("${ITEM_API_KEY}")
     private String apiKey;
 
     private final RestTemplate restTemplate;
