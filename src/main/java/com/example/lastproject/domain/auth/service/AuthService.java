@@ -32,7 +32,8 @@ public class AuthService {
      * @return responseDTO ( "${닉네임} 님의 회원가입이 완료되었습니다" )
      */
     @Transactional
-    public SignupResponse signup(SignupRequest signupRequest) {
+    public SignupResponse
+    signup(SignupRequest signupRequest) {
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
             throw new CustomException(ErrorCode.SIGNUP_ERROR);
