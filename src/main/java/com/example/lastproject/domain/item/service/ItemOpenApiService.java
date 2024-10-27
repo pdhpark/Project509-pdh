@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.item.service;
 
 import com.example.lastproject.common.CustomException;
-import com.example.lastproject.common.ErrorCode;
+import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ItemOpenApiService {
-
+    // api 인증키 주입 필요(다른 파트 테스트시 충돌 방지 주석처리)
 //    @Value("${ITEM_API_KEY}")
     private String apiKey;
 
@@ -39,15 +39,20 @@ public class ItemOpenApiService {
      */
     public String getItemFromOpenApi() {
 
+        // getApiRangeIndexParameters 메서드 주석 참조
         Map<String,String> values = getApiRangeIndexParameters(10000, 1000);
 
-        // Open Api 데이터요청이 회당 1000건 제한이 있어 반복문 처리를 위해 메서드 분리
+        /** Open Api 데이터요청이 회당 1000건 제한이 있어 반복문 처리를 위해 메서드 분리
+         * 2000 개의 데이터 조회시 1000개씩 2번의 요청 필요
+         * 1~1000 1회, 1001~2000 1회 => 총 2회의 요청
+        */
         for(Map.Entry<String,String> value : values.entrySet()){
             saveOpenApiRequest(value.getKey(), value.getValue());
         }
         return "품목데이터 업데이트완료";
     }
 
+    // api 요청메서드
     private void saveOpenApiRequest(String startIndex, String endIndex) {
         // api 키가 주입되었을때만 실행
         if (!apiKey.isBlank()) {
@@ -79,7 +84,7 @@ public class ItemOpenApiService {
                 log.info("API 요청 시작");
                 String jsonData = restTemplate.getForObject(uri, String.class);
 
-                // 데이터 파싱을 위한 객체생성
+                // 데이터 파싱을 위한 제이슨 객체 생성
                 JSONParser jsonParser = new JSONParser();
                 JSONObject jsonResponse = (JSONObject) jsonParser.parse(jsonData);
 
@@ -95,7 +100,7 @@ public class ItemOpenApiService {
                 for (Object row : jsonRowList) {
                     JSONObject jsonItem = (JSONObject) row;
                     Item item = new Item().builder()
-                            // 카테고리추출후 아이템 category 매핑
+                            // 품목분류명 추출후 아이템 category 매핑
                             .category((String) jsonItem.get("STD_PRDLST_NM"))
                             // 상세상품명 추출후 아이템 productName 매핑
                             .productName((String) jsonItem.get("STD_SPCIES_NM"))
@@ -118,11 +123,11 @@ public class ItemOpenApiService {
             throw new CustomException(ErrorCode.API_KEY_NOT_FOUND);
         }
     }
-
     /**
-     * 조회할 최대 범위값과 조회범위 텀을 얼마나 정할지 입력시 범위 파라미터를 반환
+     * 조회할 최대 범위값과 범위간격을 반환하는 메서드
+     * @param maxRange(최대범위값)termLength(범위간격)
      * 예) getApiRangeIndexParameters(1000, 100)
-     * => 출력 <key: 1, value: 100>, <key: 101, value: 200>,... <key: 901, value: 1000>
+     * @return  <key: 1, value: 100>, <key: 101, value: 200>,... <key: 901, value: 1000>
      */
     private Map<String, String> getApiRangeIndexParameters(int maxRange, int termLength){
         Map<String,String> values = new HashMap<>();

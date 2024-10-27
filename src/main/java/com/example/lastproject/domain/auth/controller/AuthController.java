@@ -24,13 +24,20 @@ public class AuthController {
      * 회원가입
      *
      * @param signupRequest 회원가입 시 필요한 body ( 이메일, 비밀번호, 닉네임, 주소, 사용자 권한 )
-     * @return responseDTO ( _ 님의 가입이 성공적으로 완료되었습니다
+     * @return responseDTO ( _ 님의 가입이 성공적으로 완료되었습니다. )
      */
     @PostMapping("/signup")
-    public SignupResponse signup(@Valid @RequestBody SignupRequest signupRequest) {
-        return authService.signup(signupRequest);
+    public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        SignupResponse response = authService.signup(signupRequest);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * 로그인
+     *
+     * @param signinRequest 로그인 시 필요한 body ( email, password )
+     * @return responseDTO ( 로그인되었습니다. )
+     */
     @PostMapping("/signin")
     public ResponseEntity<SigninResponse> signin(@Valid @RequestBody SigninRequest signinRequest) {
         String token = authService.signin(signinRequest);
@@ -42,6 +49,12 @@ public class AuthController {
                 .body(response);
     }
 
+    /**
+     * 회원탈퇴
+     *
+     * @param authUser 인증된 사용자
+     * @return String ( 탈퇴되었습니다. )
+     */
     @GetMapping("/withdrawal")
     public ResponseEntity<String> withdrawal(@AuthenticationPrincipal AuthUser authUser) {
         authService.withdrawal(authUser);
