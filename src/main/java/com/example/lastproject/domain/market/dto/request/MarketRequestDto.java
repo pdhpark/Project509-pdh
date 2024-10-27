@@ -10,12 +10,12 @@ import lombok.Getter;
 public class MarketRequestDto {
 
     @NotBlank(message = "마켓 이름은 필수 입력 항목입니다.")
-    private String storeName;
+    private String marketName;
 
     @NotBlank(message = "주소는 필수 입력 항목입니다.")
     private String address;
 
     public Market toEntity() {
-        return new Market(this.storeName, this.address);
+        return new Market(this.marketName, this.address);
     }
 }

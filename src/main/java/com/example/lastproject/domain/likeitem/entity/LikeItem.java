@@ -23,4 +23,9 @@ public class  LikeItem {
     @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
+
+    public LikeItem(User user, Item item) {
+        this.user = user;
+        this.item = item;
+    }
 }
