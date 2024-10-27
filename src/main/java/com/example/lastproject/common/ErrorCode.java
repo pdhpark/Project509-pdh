@@ -43,6 +43,9 @@ public enum ErrorCode {
 
     // Party ErrorCode
     PARTY_NOT_FOUND(HttpStatus.NOT_FOUND, "파티를 찾을 수 없습니다."),
+    INVALID_PARTY_STATUS(HttpStatus.BAD_REQUEST, "잘못된 파티 상태입니다"),
+    INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "시작 시간은 종료 시간보다 이전이어야 합니다."),
+    INVALID_MAX_MEMBERS(HttpStatus.BAD_REQUEST, "참가 인원 설정이 잘못 되었습니다."),
 
     // PartyMember ErrorCode
 
