@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "like_item")
 @Getter
 @NoArgsConstructor
-public class LikeItem {
+public class  LikeItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,4 +23,9 @@ public class LikeItem {
     @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
+
+    public LikeItem(User user, Item item) {
+        this.user = user;
+        this.item = item;
+    }
 }
