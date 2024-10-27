@@ -54,7 +54,8 @@ public enum ErrorCode {
 
 
     // Notification ErrorCode
-
+    SSE_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "SSE 연결 오류입니다."),
+    NOT_FOUND_NOTIFICATION(HttpStatus.BAD_REQUEST, "존재하지 않는 알림입니다."),
 
     // Chat ErrorCode
 

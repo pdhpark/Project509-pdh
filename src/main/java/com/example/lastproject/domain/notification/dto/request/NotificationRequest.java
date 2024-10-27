@@ -1,13 +1,17 @@
 package com.example.lastproject.domain.notification.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.example.lastproject.domain.notification.entity.NotificationType;
+import com.example.lastproject.domain.user.entity.User;
+import lombok.*;
 
+@Builder
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationRequest {
-    private String message;
-}
 
+    private String url;
+    private String content;
+    private User receiver;
+    private NotificationType notificationType;
+}
