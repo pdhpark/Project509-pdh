@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.notification.service;
 
 import com.example.lastproject.common.CustomException;
-import com.example.lastproject.common.ErrorCode;
+import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponseDto;
