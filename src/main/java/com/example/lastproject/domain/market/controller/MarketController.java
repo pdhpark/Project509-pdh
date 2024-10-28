@@ -1,4 +1,4 @@
-package com.example.lastproject.domain.market.marketcontroller;
+package com.example.lastproject.domain.market.controller;
 
 import com.example.lastproject.domain.market.dto.request.MarketRequestDto;
 import com.example.lastproject.domain.market.service.MarketService;
@@ -32,4 +32,5 @@ public class MarketController {
     public ResponseEntity<String> deleteMarket(@PathVariable Long marketId){
         return ResponseEntity.ok(marketService.deleteMarket(marketId));
     }
+
 }
