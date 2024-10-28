@@ -1,19 +1,15 @@
 package com.example.lastproject.domain.item.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
 @Getter
-@Builder
+@NoArgsConstructor
 @AllArgsConstructor
+
 public class Item {
 
     @Id
@@ -21,11 +17,9 @@ public class Item {
     private Long id;
 
     private String category;
-    private String productName;
 
-    public Item(String category, String productName) {
+    public Item(String category) {
         this.category = category;
-        this.productName = productName;
     }
 
 }
