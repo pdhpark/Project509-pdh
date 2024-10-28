@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 public class MarketRequestDto {
 
@@ -18,4 +17,5 @@ public class MarketRequestDto {
     public Market toEntity() {
         return new Market(this.marketName, this.address);
     }
+
 }

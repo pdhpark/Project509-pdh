@@ -1,7 +1,7 @@
 package com.example.lastproject.config;
 
-import com.example.lastproject.config.JwtSecurityFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable) // LogoutFilter 비활성화
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/auth/signin", "/auth/signup").permitAll()
+                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() //frontend관련(css,js) 경로 permit
+                                .requestMatchers("/ws/**", "/topic/**", "/app/**", "index.html", "/").permitAll() //chat관련 경로 및 frontend관련(html) 경로 permit
                                 .anyRequest().authenticated()
                 )
                 .build();
