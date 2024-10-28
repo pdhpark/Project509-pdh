@@ -38,6 +38,15 @@ function onConnected() {
     // Subscribe to the Public Topic
     stompClient.subscribe('/topic/' + roomId, onMessageReceived);
 
+    // 서버에 이전 메시지 요청
+    fetch('/chat/history/' + roomId)
+        .then(response => response.json())
+        .then(messages => {
+            messages.forEach(message => {
+                onMessageReceived({ body: JSON.stringify(message) });
+            });
+        });
+
     // Tell your username to the server
     stompClient.send("/app/chat.addUser/" + roomId,
         {},

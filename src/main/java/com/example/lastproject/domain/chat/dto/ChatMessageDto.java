@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ChatMessageDto {
+
     private MessageType type;
     private String content;
     private String sender;
@@ -21,4 +22,5 @@ public class ChatMessageDto {
     public void changeSender(String sender) {
         this.sender = sender;
     }
+
 }

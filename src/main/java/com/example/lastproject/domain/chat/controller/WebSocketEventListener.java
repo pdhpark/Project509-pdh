@@ -25,7 +25,6 @@ public class WebSocketEventListener {
     /**
      * 새로운 유저가 들어왔을 때 호출되는 메서드
      */
-
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         logger.info("Received a new web socket connection");
@@ -34,7 +33,6 @@ public class WebSocketEventListener {
     /**
      * 유저가 나갔을 때 호출되는 메서드
      */
-
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         //STOMP 메시지의 헤더 정보를 쉽게 다룰 수 있는 유틸리티 클래스를 사용.
@@ -54,4 +52,5 @@ public class WebSocketEventListener {
             messagingTemplate.convertAndSend("/topic/"+roomId, chatMessage);
         }
     }
+
 }
