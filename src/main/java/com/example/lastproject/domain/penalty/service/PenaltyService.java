@@ -2,6 +2,7 @@ package com.example.lastproject.domain.penalty.service;
 
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
+import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.party.entity.Party;
 import com.example.lastproject.domain.party.repository.PartyRepository;
 import com.example.lastproject.domain.penalty.dto.request.PenaltyRequest;
@@ -32,7 +33,11 @@ public class PenaltyService {
      * @param request 페널티를 부여할 유저의 리스트
      */
     @Transactional
-    public void sendPenalty(Long partyId, PenaltyRequest request) {
+    public void sendPenalty(AuthUser authUser, Long partyId, PenaltyRequest request) {
+
+        userRepository.findById(authUser.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
 
         // requestDTO 에서 유저 리스트 받아오기
         List<Long> userIds = request.getUserIds();
