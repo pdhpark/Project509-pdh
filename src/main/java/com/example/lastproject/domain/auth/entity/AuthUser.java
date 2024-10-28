@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.auth.entity;
 
 import com.example.lastproject.domain.user.enums.UserRole;
-import lombok.*;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -20,4 +20,5 @@ public class AuthUser {
         this.email = email;
         this.authorities = List.of(new SimpleGrantedAuthority(role.name()));
     }
+
 }

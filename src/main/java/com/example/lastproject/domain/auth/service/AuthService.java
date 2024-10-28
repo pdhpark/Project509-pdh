@@ -6,9 +6,11 @@ import com.example.lastproject.config.JwtUtil;
 import com.example.lastproject.domain.auth.dto.request.SigninRequest;
 import com.example.lastproject.domain.auth.dto.request.SignupRequest;
 import com.example.lastproject.domain.auth.dto.response.SignupResponse;
+import com.example.lastproject.domain.auth.dto.response.WithdrawalResponse;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.user.entity.User;
 import com.example.lastproject.domain.user.enums.UserRole;
+import com.example.lastproject.domain.user.enums.UserStatus;
 import com.example.lastproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,8 +34,7 @@ public class AuthService {
      * @return responseDTO ( "${닉네임} 님의 회원가입이 완료되었습니다" )
      */
     @Transactional
-    public SignupResponse
-    signup(SignupRequest signupRequest) {
+    public SignupResponse signup(SignupRequest signupRequest) {
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
             throw new CustomException(ErrorCode.SIGNUP_ERROR);
@@ -53,6 +54,7 @@ public class AuthService {
         User savedUser = userRepository.save(newUser);
 
         return new SignupResponse(savedUser.getNickname());
+
     }
 
     /**
@@ -62,6 +64,7 @@ public class AuthService {
      * @return 로그인 후 발급되는 토큰 반환 ( "Bearer eyJ~" )
      */
     public String signin(SigninRequest signinRequest) {
+
         User user = userRepository.findByEmail(signinRequest.getEmail()).orElseThrow(
                 () -> new CustomException(ErrorCode.SIGNIN_ERROR)
         );
@@ -73,6 +76,7 @@ public class AuthService {
         }
 
         return jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
+
     }
 
     /**
@@ -81,10 +85,19 @@ public class AuthService {
      * @param authUser 로그인한 사용자
      */
     @Transactional
-    public void withdrawal(@AuthenticationPrincipal AuthUser authUser) {
+    public WithdrawalResponse withdrawal(@AuthenticationPrincipal AuthUser authUser) {
+
         User user = userRepository.findById(authUser.getUserId()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
+
+        if (user.getUserStatus() == UserStatus.DELETED) {
+            throw new CustomException(ErrorCode.WITHDRAWAL_ERROR);
+        }
+
         user.toggleDelete();
+        return new WithdrawalResponse(user.getNickname());
+
     }
+
 }
