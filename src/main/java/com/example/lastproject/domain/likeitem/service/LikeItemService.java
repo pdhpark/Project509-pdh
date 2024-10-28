@@ -24,6 +24,7 @@ public class LikeItemService {
 
     @Transactional
     public void bookmarkItem(AuthUser authUser, Long itemId) {
+
         User user = userRepository.findById(authUser.getUserId()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
@@ -36,6 +37,10 @@ public class LikeItemService {
     }
 
     public LikeItemResponseDto getLikeItems(AuthUser authUser) {
+
+        Long userId = authUser.getUserId();
+
         return null;
     }
+
 }

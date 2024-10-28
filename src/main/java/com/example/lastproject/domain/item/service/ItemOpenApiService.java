@@ -25,7 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ItemOpenApiService {
     // api 인증키 주입 필요(다른 파트 테스트시 충돌 방지 주석처리)
-//    @Value("${ITEM_API_KEY}")
+    // @Value("${ITEM_API_KEY}")
     private String apiKey;
 
     private final RestTemplate restTemplate;
@@ -49,6 +49,7 @@ public class ItemOpenApiService {
         for(Map.Entry<String,String> value : values.entrySet()){
             saveOpenApiRequest(value.getKey(), value.getValue());
         }
+
         return "품목데이터 업데이트완료";
     }
 
@@ -123,6 +124,7 @@ public class ItemOpenApiService {
             throw new CustomException(ErrorCode.API_KEY_NOT_FOUND);
         }
     }
+
     /**
      * 조회할 최대 범위값과 범위간격을 반환하는 메서드
      * @param maxRange(최대범위값)termLength(범위간격)
@@ -130,7 +132,9 @@ public class ItemOpenApiService {
      * @return  <key: 1, value: 100>, <key: 101, value: 200>,... <key: 901, value: 1000>
      */
     private Map<String, String> getApiRangeIndexParameters(int maxRange, int termLength){
+
         Map<String,String> values = new HashMap<>();
+
         for(int i = 1; i < maxRange;){
             String startIndex = String.valueOf(i);
             i = i+termLength-1;
@@ -140,7 +144,5 @@ public class ItemOpenApiService {
         }
         return values;
     }
+
 }
-
-
-
