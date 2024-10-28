@@ -59,6 +59,12 @@ dependencies {
 	// Jackson
 	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+	// querydsl 추가
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 tasks.named('test') {

@@ -13,18 +13,20 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Market {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String storeName;
+    private String marketName;
 
     @Column(nullable = false)
     private String address;
 
-    public Market(String storeName, String address) {
-        this.storeName = storeName;
+    public Market(String marketName, String address) {
+        this.marketName = marketName;
         this.address = address;
     }
+
 }

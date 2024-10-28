@@ -40,9 +40,14 @@ public enum ErrorCode {
 
     // Party ErrorCode
     PARTY_NOT_FOUND(HttpStatus.NOT_FOUND, "파티를 찾을 수 없습니다."),
+    INVALID_PARTY_STATUS(HttpStatus.BAD_REQUEST, "잘못된 파티 상태입니다"),
+    INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "시작 시간은 종료 시간보다 이전이어야 합니다."),
+    INVALID_MAX_MEMBERS(HttpStatus.BAD_REQUEST, "참가 인원 설정이 잘못 되었습니다."),
+    INVALID_MIN_MEMBERS(HttpStatus.BAD_REQUEST, "최소 참가 인원은 1명 이상이어야 합니다."),
+    NOT_PARTY_LEADER(HttpStatus.BAD_REQUEST, "파티장만 수정할 수 있습니다."),
 
     // PartyMember ErrorCode
-
+    PARTY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "파티 멤버를 찾을 수 없습니다."),
 
     // Market ErrorCode
 
@@ -79,6 +84,7 @@ public enum ErrorCode {
     // OpenApi ErrorCode
     API_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "API 요청이 잘못되었습니다."),
     API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 인증키를 찾을 수 없습니다."),
+    API_PARSE_ERROR(HttpStatus.BAD_REQUEST, "API 응답데이터 변환에 실패했습니다."),
 
     // Chat ErrorCode
 
