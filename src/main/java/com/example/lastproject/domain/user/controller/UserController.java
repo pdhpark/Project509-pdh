@@ -1,8 +1,8 @@
 package com.example.lastproject.domain.user.controller;
 
 import com.example.lastproject.domain.auth.entity.AuthUser;
-import com.example.lastproject.domain.user.dto.UserUpdateRequest;
 import com.example.lastproject.domain.user.dto.request.UserChangePasswordRequest;
+import com.example.lastproject.domain.user.dto.request.UserUpdateRequest;
 import com.example.lastproject.domain.user.dto.response.UserResponse;
 import com.example.lastproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -22,10 +23,12 @@ public class UserController {
      * @param userId 사용자 id
      * @return 응답 객체 반환 ( email, nickname, successCode )
      */
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable long userId) {
+
         UserResponse response = userService.getUser(userId);
         return ResponseEntity.ok(response);
+
     }
 
     /**
@@ -35,12 +38,14 @@ public class UserController {
      * @param request  비밀번호 변경에 필요한 정보 ( 기존 비밀번호, 새 비밀번호 )
      * @return 응답 객체 반환 ( email, nickname, successCode )
      */
-    @PutMapping("/users/password")
+    @PutMapping("/password")
     public ResponseEntity<UserResponse> changePassword(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody UserChangePasswordRequest request) {
+
         UserResponse response = userService.changePassword(authUser.getUserId(), request);
         return ResponseEntity.ok(response);
+
     }
 
     /**
@@ -50,12 +55,15 @@ public class UserController {
      * @param request  변경에 필요한 정보 ( 이메일, 닉네임, 주소 )
      * @return 응답 객체 반환 ( email, nickname, successCode )
      */
-    @PutMapping("/users")
+    @PutMapping
     public ResponseEntity<UserResponse> updateUser(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody UserUpdateRequest request
     ) {
+
         UserResponse response = userService.updateUser(authUser.getUserId(), request);
         return ResponseEntity.ok(response);
+
     }
+
 }
