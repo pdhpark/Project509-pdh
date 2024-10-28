@@ -1,9 +1,9 @@
 package com.example.lastproject.domain.chat.controller;
 
 import com.example.lastproject.domain.chat.dto.ChatMessageDto;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -16,13 +16,11 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
  */
 
 @Component
+@RequiredArgsConstructor
 public class WebSocketEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
-
-    // STOMP 메시지를 전송하는 인터페이스를 주입
-    @Autowired
-    private SimpMessageSendingOperations messagingTemplate;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     /**
      * 새로운 유저가 들어왔을 때 호출되는 메서드
@@ -42,17 +40,18 @@ public class WebSocketEventListener {
         //STOMP 메시지의 헤더 정보를 쉽게 다룰 수 있는 유틸리티 클래스를 사용.
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        //채팅방을 나간 유저의 이름을 추출
+        //채팅방을 나간 유저의 이름과 roomId를 추출
         String username = (String) headerAccessor.getSessionAttributes().get("username");
+        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
         if(username != null) {
             logger.info("User Disconnected : " + username);
 
             ChatMessageDto chatMessage = new ChatMessageDto();
-            chatMessage.setType(ChatMessageDto.MessageType.LEAVE);
-            chatMessage.setSender(username);
+            chatMessage.changeType(ChatMessageDto.MessageType.LEAVE);
+            chatMessage.changeSender(username);
 
-            //public을 각 채팅방에 맞게 roomId로 수정필요.
-            messagingTemplate.convertAndSend("/topic/public", chatMessage);
+            //해당 채팅방에 Leave메세지 전송
+            messagingTemplate.convertAndSend("/topic/"+roomId, chatMessage);
         }
     }
 }

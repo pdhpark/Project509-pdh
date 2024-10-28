@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MarketService {
 
@@ -19,6 +19,7 @@ public class MarketService {
     @Transactional
     // 마켓 저장
     public String saveMarket(MarketRequestDto requestDto) {
+
         marketRepository.save(requestDto.toEntity());
 
         return "성공 임시메시지";
@@ -27,6 +28,7 @@ public class MarketService {
     @Transactional
     // 마켓 삭제
     public String deleteMarket(Long marketId) {
+
         Market market = marketRepository.findById(marketId).orElseThrow(
                 () -> new CustomException(ErrorCode.MARKET_NOT_FOUND)
         );
@@ -35,4 +37,5 @@ public class MarketService {
 
         return "성공 임시메시지";
     }
+
 }

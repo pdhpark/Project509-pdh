@@ -18,7 +18,7 @@ public class ChatController {
      */
 
     @MessageMapping("/chat.sendMessage/{roomId}")
-    @SendTo("/topic/{roomId}}")
+    @SendTo("/topic/{roomId}")
     public ChatMessageDto sendMessage(@DestinationVariable("roomId") String roomId, @Payload ChatMessageDto chatMessage) {
         return chatMessage;
     }
@@ -33,8 +33,9 @@ public class ChatController {
     @SendTo("/topic/{roomId}")
     public ChatMessageDto addUser(@DestinationVariable("roomId") String roomId, @Payload ChatMessageDto chatMessage,
                                SimpMessageHeaderAccessor headerAccessor) {
-        // web socket session에 username 추가
+        // web socket session에 username, roomId 추가
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+        headerAccessor.getSessionAttributes().put("roomId", roomId);
         return chatMessage;
     }
 

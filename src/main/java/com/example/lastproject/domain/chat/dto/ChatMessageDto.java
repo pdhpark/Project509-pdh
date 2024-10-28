@@ -1,5 +1,8 @@
 package com.example.lastproject.domain.chat.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ChatMessageDto {
     private MessageType type;
     private String content;
@@ -11,27 +14,11 @@ public class ChatMessageDto {
         LEAVE
     }
 
-    public MessageType getType() {
-        return type;
-    }
-
-    public void setType(MessageType type) {
+    public void changeType(MessageType type) {
         this.type = type;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public void setSender(String sender) {
+    public void changeSender(String sender) {
         this.sender = sender;
     }
 }
