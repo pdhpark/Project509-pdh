@@ -4,15 +4,16 @@ import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.party.enums.PartyStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
-@Getter
 @Entity
-@NoArgsConstructor
 @Table(name = "Party")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Party extends Timestamped {
 
     @Id
@@ -38,21 +39,21 @@ public class Party extends Timestamped {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @Column(nullable = false)
-    private int maxMembers;
+    @Column(name = "members_count", nullable = false) // 수정된 부분
+    private int membersCount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PartyStatus partyStatus = PartyStatus.OPEN;
 
-    public Party(String marketName, String marketAddress, Item item, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int maxMembers) {
+    public Party(String marketName, String marketAddress, Item item, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
         this.marketName = marketName;
         this.marketAddress = marketAddress;
         this.item = item;
         this.itemUnit = itemUnit;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.maxMembers = maxMembers;
+        this.membersCount = membersCount;
         this.partyStatus = PartyStatus.OPEN;
     }
 
@@ -60,7 +61,16 @@ public class Party extends Timestamped {
         this.partyStatus = newStatus;
     }
 
-    public void updateMaxMembers(int maxMembers) {
-        this.maxMembers = maxMembers;
+    public void updateMembersCount(int membersCount) {
+        this.membersCount = membersCount;
     }
+
+    public void updateDetails(Item item, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
+        this.item = item;
+        this.itemUnit = itemUnit;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.membersCount = membersCount;
+    }
+
 }
