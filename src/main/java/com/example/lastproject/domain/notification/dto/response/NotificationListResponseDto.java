@@ -6,10 +6,11 @@ import lombok.Getter;
 
 import java.util.List;
 
-@Builder
 @Getter
+@Builder
 public class NotificationListResponseDto {
-    private List<NotificationResponse> notifications;
+
+    private final List<NotificationResponse> notifications;
 
     public static NotificationListResponseDto of(List<Notification> notifications) {
         return NotificationListResponseDto.builder()
@@ -17,4 +18,5 @@ public class NotificationListResponseDto {
                         .toList())
                 .build();
     }
+
 }

@@ -3,6 +3,7 @@ package com.example.lastproject.domain.notification.service;
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.domain.market.entity.Market;
 import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponseDto;
 import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
@@ -22,9 +23,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Map;
 
-@Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Service
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
@@ -35,13 +36,17 @@ public class NotificationServiceImpl implements NotificationService {
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private static final String CLIENT_BASIC_URL = "http://localhost:8080";
 
-    // subscribe 로 연결 요청 시 SseEmitter(발신기)를 생성합니다.
+    /**
+     * SSE 연결
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param lastEventId 클라이언트가 마지막으로 수신한 데이터의 Id값을 의미한다. 이를 이용하여 유실된 데이터를 다시 보내줄 수 있다.
+     * @return SseEmitter(발신기)를 생성하여 반환합니다.
+     */
     @Transactional
     public SseEmitter subscribe(AuthUser authUser, String lastEventId) {
         String emitterId = makeTimeIncludeId(authUser);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
-        // 시간 초과나 비동기 요청이 안되면 자동으로 삭제
         // SseEmitter 의 완료/시간초과/에러로 인한 전송 불가 시 SseEmitter 삭제
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
@@ -50,13 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
         String eventId = makeTimeIncludeId(authUser);
         sendToClient(emitter, emitterId, eventId, "연결되었습니다. EventStream Created. [userId=" + authUser.getUserId() + "]");
 
-        // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
-        // 클라이언트의 요청 헤더에 lastEventId 값이 있는 경우 lastEventId 보다 더 큰(더 나중에 생성된) emitter를 찾아서 발송
-        // lastEventId 있다는 것은 연결이 종료된 것. 해당 데이터가 남아있는지 살펴보고 있다면 남은 데이터 전송
-        //  이 메서드는 이벤트를 보낼 때 하나는 클라이언트에서 확인할 이벤트 ID로 사용하고,
-        //  다른 하나는 서버에서 이벤트를 추적하기 위한 식별 ID로 사용하려는 의도로 보입니다.
-        //  하지만 만약 entry.getKey()를 두 번 사용할 필요가 없다면 코드에서 하나는 제거할 수 있습니다.
-        if (!lastEventId.isEmpty()) {  // lastEventId가 존재한다는 것은 받지 못한 데이터가 있다는 것이다.(프론트에서 알아서 보내준다.)
+        if (!lastEventId.isEmpty()) {
             Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(authUser.getUserId()));
             events.entrySet().stream()
                     .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
@@ -65,13 +64,23 @@ public class NotificationServiceImpl implements NotificationService {
         return emitter;
     }
 
-    // 데이터 유실 시점 파악 위함
+    /**
+     * 데이터 유실 시점을 파악하기 위해 사용자 ID와 현재 시간을 포함한 ID를 생성합니다.
+     * @param authUser 인증된 사용자 정보
+     * @return 사용자 ID와 현재 시간이 포함된 문자열 ID
+     */
     private String makeTimeIncludeId(AuthUser authUser) {
         return authUser.getUserId() + "_" + System.currentTimeMillis();
     }
 
-    // 특정 SseEmitter 를 이용해 알림을 보냅니다. SseEmitter 는 최초 연결 시 생성되며,
-    // 해당 SseEmitter 를 생성한 클라이언트로 알림을 발송하게 됩니다.
+    /**
+     * 클라이언트에게 데이터를 전송합니다.
+     * @param emitter SseEmitter 객체
+     * @param emitterId 발신기 ID
+     * @param eventId 이벤트 ID
+     * @param data 전송할 데이터
+     * @throws CustomException SSE 연결 오류 발생 시 예외를 던집니다.
+     */
     public void sendToClient(SseEmitter emitter, String emitterId, String eventId, Object data) {
         try {
             emitter.send(SseEmitter.event()
@@ -84,18 +93,26 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    // 알림 보내기 ( notificationRepository 에 저장 후 보내기)
+    /**
+     * 알림을 저장하고, 저장된 알림을 클라이언트에게 전송합니다.
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param request 알림(content, type, url) 요청 정보
+     */
     @Override
     public void send(AuthUser authUser, NotificationRequest request) {
         sendNotification(authUser, saveNotification(authUser, request));
     }
 
-    // 알림 저장
+    /**
+     * 알림 저장
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param request 알림(content, type, url) 요청 정보
+     * @return 새롭게 생성된 알림 정보(id, content, type, enum, url, isRead, createdAt)가 포함된 notification 객체
+     */
     @Transactional
     public Notification saveNotification(AuthUser authUser, NotificationRequest request) {
         User user = User.fromAuthUser(authUser);
 
-        // 알림 객체 생성
         Notification notification = Notification.builder()
                 .receiver(user)
                 .notificationType(request.getNotificationType())
@@ -107,7 +124,11 @@ public class NotificationServiceImpl implements NotificationService {
         return notification;
     }
 
-    // 알림 보내기
+    /**
+     * 비동기적으로 알림을 전송합니다.
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param notification 전송할 알림 정보
+     */
     @Async
     public void sendNotification(AuthUser authUser, Notification notification) {
         String receiverId = String.valueOf(authUser.getUserId());
@@ -125,12 +146,16 @@ public class NotificationServiceImpl implements NotificationService {
         );
     }
 
-    // 찜한 품목의 파티가 생성된 경우 알림
+    /**
+     * 찜한 품목의 파티가 생성된 경우 알림을 보냅니다.
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param party 생성된 파티 정보
+     */
     @Override
     @Transactional
     public void notifyUsersAboutPartyCreation(AuthUser authUser, Party party) {
         User receiver = User.fromAuthUser(authUser);
-        String content = "찜하신 품목("+ party.getItem().getProductName() + ")의 파티가 생성되었습니다.";
+        String content = party.getItem().getProductName() + "품목 파티가 생성되었습니다.";
 
         String redirectUrl = CLIENT_BASIC_URL + "/parties/" + party.getId();
 
@@ -144,12 +169,16 @@ public class NotificationServiceImpl implements NotificationService {
         send(authUser, request);
     }
 
-    // 찜한 품목의 파티가 취소된 경우 알림
+    /**
+     * 찜한 품목의 파티가 취소된 경우 알림을 보냅니다.
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param market 취소된 마켓 정보
+     */
     @Override
     @Transactional
-    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Party party) {
+    public void notifyUsersAboutMarketCancellation(AuthUser authUser, Market market) {
         User receiver = User.fromAuthUser(authUser);
-        String content = "찜하신 품목("+ party.getItem().getProductName() + ")의 파티가 취소되었습니다.";
+        String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
 
         String redirectUrl = CLIENT_BASIC_URL + "/parties";
 
@@ -163,20 +192,32 @@ public class NotificationServiceImpl implements NotificationService {
         send(authUser, request);
     }
 
-    // 참가 신청한 파티의 채팅창이 생성된 경우 알림
+    /**
+     * 참가 신청한 파티의 채팅창이 생성된 경우 알림을 보냅니다.
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param party 생성된 파티 정보
+     */
     @Override
     public void notifyUsersAboutPartyChatCreation(AuthUser authUser, Party party) {
 
     }
 
-    // 알림 목록 조회
+    /**
+     * 사용자의 알림 목록을 조회합니다.
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @return 사용자의 알림 목록을 포함한 NotificationListResponseDto
+     */
     @Override
     public NotificationListResponseDto getNotifications(AuthUser authUser) {
         return NotificationListResponseDto.of(
                 notificationRepository.findAllByReceiverIdOrderByCreatedAtDesc(authUser.getUserId()));
     }
 
-    // 알림 읽음 처리
+    /**
+     * 알림을 읽음 처리합니다.
+     * @param notificationId 읽음 처리할 알림 ID
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     */
     @Override
     @Transactional
     public void readNotification(Long notificationId, AuthUser authUser) {
@@ -185,16 +226,26 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
-    // 알림 삭제
+    /**
+     * 알림 삭제
+     * @param notificationId 삭제할 알림의 ID
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     */
     @Override
     @Transactional
     public void deleteNotification(Long notificationId, AuthUser authUser) {
         notificationRepository.delete(findNotification(notificationId));
     }
 
+    /**
+     * 특정 ID의 알림을 조회합니다.
+     * @param id 알림의 고유 ID
+     * @return CustomException 해당 ID의 알림이 존재하지 않을 경우 발생합니다.
+     */
     @Override
     public Notification findNotification(Long id) {
         return notificationRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NOTIFICATION));
     }
+
 }

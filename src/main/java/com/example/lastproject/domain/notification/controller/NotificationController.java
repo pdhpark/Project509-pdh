@@ -1,6 +1,5 @@
 package com.example.lastproject.domain.notification.controller;
 
-
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponseDto;
 import com.example.lastproject.domain.notification.service.NotificationService;
@@ -21,8 +20,8 @@ public class NotificationController {
 
     /**
      * SSE 연결
-     * @param authUser
-     * @param lastEventId
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @param lastEventId 클라이언트가 마지막으로 수신한 데이터의 Id값을 의미한다. 이를 이용하여 유실된 데이터를 다시 보내줄 수 있다.
      * @return 클라이언트와 연결을 담당하는 SseEmitter 객체 반환
      */
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -34,7 +33,7 @@ public class NotificationController {
 
     /**
      * 알림 목록 조회
-     * @param authUser
+     * @param authUser 요청을 보낸 인증된 사용자 정보
      * @return 알림 리스트 반환
      */
     @GetMapping
@@ -44,8 +43,8 @@ public class NotificationController {
 
     /**
      * 알림 읽음으로 변경
-     * @param notificationId
-     * @param authUser
+     * @param notificationId 읽음 상태로 변경할 알림의 고유 ID
+     * @param authUser 요청을 보낸 인증된 사용자 정보
      * @return 성공 메시지
      */
     @PatchMapping(value = "/{notificationId}")
@@ -57,8 +56,8 @@ public class NotificationController {
 
     /**
      * 알림 삭제
-     * @param notificationId
-     * @param authUser
+     * @param notificationId 삭제할 알림의 고유 ID
+     * @param authUser 요청을 보낸 인증된 사용자 정보
      * @return 성공 메시지
      */
     @DeleteMapping("/{notificationId}")
@@ -67,4 +66,5 @@ public class NotificationController {
         notificationService.deleteNotification(notificationId, authUser);
         return ResponseEntity.ok("알림이 성공적으로 삭제되었습니다.");
     }
+
 }

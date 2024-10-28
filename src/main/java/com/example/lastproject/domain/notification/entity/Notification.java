@@ -6,10 +6,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class Notification extends Timestamped {
 
     @Id
@@ -23,8 +24,10 @@ public class Notification extends Timestamped {
     @JoinColumn(name = "receiver_id")
     private User receiver;
 
+    @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
     private String url;
 
     @Column(nullable = false)
@@ -33,4 +36,5 @@ public class Notification extends Timestamped {
     public void read() {
         this.isRead = true;
     }
+
 }
