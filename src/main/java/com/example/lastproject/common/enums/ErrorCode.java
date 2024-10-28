@@ -29,6 +29,7 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증에 실패했습니다."),
     SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입에 실패했습니다."),
     SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인에 실패했습니다."),
+    WITHDRAWAL_ERROR(HttpStatus.BAD_REQUEST, "탈퇴에 실패했습니다."),
     NO_CONTENTS(HttpStatus.BAD_REQUEST, "변경된 정보가 없습니다."),
 
     // UserRole ErrorCode
