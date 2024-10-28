@@ -44,7 +44,7 @@ public enum ErrorCode {
     INVALID_MAX_MEMBERS(HttpStatus.BAD_REQUEST, "참가 인원 설정이 잘못 되었습니다."),
 
     // PartyMember ErrorCode
-
+    PARTY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "파티 멤버를 찾을 수 없습니다."),
 
     // Market ErrorCode
 
