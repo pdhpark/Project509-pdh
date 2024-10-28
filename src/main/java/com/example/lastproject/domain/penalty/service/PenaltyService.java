@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,6 +31,7 @@ public class PenaltyService {
      * @param partyId 페널티를 부여할 유저가 속했던 파이
      * @param request 페널티를 부여할 유저의 리스트
      */
+    @Transactional
     public void sendPenalty(Long partyId, PenaltyRequest request) {
 
         // requestDTO 에서 유저 리스트 받아오기
@@ -42,10 +44,17 @@ public class PenaltyService {
                 () -> new CustomException(ErrorCode.PARTY_NOT_FOUND)
         );
 
-        // 지정된 유저를 대상으로 각각 페널티를 부여
+        List<Penalty> penalties = new ArrayList<>();
+
+        // 지정된 유저를 대상으로 각각 페널티를 부여하고 리스트에 추가
         for (User user : users) {
             Penalty penalty = new Penalty(party, user);
-            penaltyRepository.save(penalty);
+            penalties.add(penalty);
         }
+
+        // 추가한 페널티 리스트를 한번에 save
+        penaltyRepository.saveAll(penalties);
+
     }
+
 }
