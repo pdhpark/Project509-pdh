@@ -27,11 +27,11 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ItemOpenApiService {
-    // api 인증키와 포트주소 주입 필요(다른 파트 테스트시 충돌 방지 주석처리)
-    @Value("${ITEM_API_KEY}")
+    // 환경변수 설정값이 없으면 빈 문자열을 주입
+    @Value("${ITEM_API_KEY:}")
     private String apiKey;
 
-    @Value("${API_PORT}")
+    @Value("${API_PORT:}")
     private String apiPort;
 
     private final RestTemplate restTemplate;
@@ -128,9 +128,9 @@ public class ItemOpenApiService {
                 log.info("API 요청 종료");
             }
         }
-        // API 키가 없을경우 예외 발생
+        // API 환경변수 설정 값이 없을경우 예외 발생
         else {
-            throw new CustomException(ErrorCode.API_KEY_NOT_FOUND);
+            throw new CustomException(ErrorCode.API_CONFIGURATION_NOT_FOUND);
         }
     }
 

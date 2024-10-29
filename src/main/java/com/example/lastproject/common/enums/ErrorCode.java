@@ -85,7 +85,7 @@ public enum ErrorCode {
 
     // OpenApi ErrorCode
     API_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "API 요청이 잘못되었습니다."),
-    API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 인증키를 찾을 수 없습니다."),
+    API_CONFIGURATION_NOT_FOUND(HttpStatus.NOT_FOUND, "API 환경설정 값을 찾을 수 없습니다."),
     API_PARSE_ERROR(HttpStatus.BAD_REQUEST, "API 응답데이터 변환에 실패했습니다."),
 
     // Chat ErrorCode
