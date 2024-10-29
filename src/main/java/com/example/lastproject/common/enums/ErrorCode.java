@@ -60,6 +60,8 @@ public enum ErrorCode {
     NOT_FOUND_NOTIFICATION(HttpStatus.BAD_REQUEST, "존재하지 않는 알림입니다."),
 
     // Chat ErrorCode
+    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
+    CHATROOM_RESIST_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방입니다"),
 
     // UserReview ErrorCode
 
