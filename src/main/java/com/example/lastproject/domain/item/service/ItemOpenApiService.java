@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -27,10 +28,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ItemOpenApiService {
     // api 인증키와 포트주소 주입 필요(다른 파트 테스트시 충돌 방지 주석처리)
-//    @Value("${ITEM_API_KEY}")
+    @Value("${ITEM_API_KEY}")
     private String apiKey;
 
-//    @Value("${API_PORT}")
+    @Value("${API_PORT}")
     private String apiPort;
 
     private final RestTemplate restTemplate;

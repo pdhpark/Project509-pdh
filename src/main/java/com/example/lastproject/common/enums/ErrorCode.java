@@ -29,6 +29,7 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증에 실패했습니다."),
     SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입에 실패했습니다."),
     SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인에 실패했습니다."),
+    WITHDRAWAL_ERROR(HttpStatus.BAD_REQUEST, "탈퇴에 실패했습니다."),
     NO_CONTENTS(HttpStatus.BAD_REQUEST, "변경된 정보가 없습니다."),
 
     // UserRole ErrorCode
@@ -39,9 +40,14 @@ public enum ErrorCode {
 
     // Party ErrorCode
     PARTY_NOT_FOUND(HttpStatus.NOT_FOUND, "파티를 찾을 수 없습니다."),
+    INVALID_PARTY_STATUS(HttpStatus.BAD_REQUEST, "잘못된 파티 상태입니다"),
+    INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "시작 시간은 종료 시간보다 이전이어야 합니다."),
+    INVALID_MAX_MEMBERS(HttpStatus.BAD_REQUEST, "참가 인원 설정이 잘못 되었습니다."),
+    INVALID_MIN_MEMBERS(HttpStatus.BAD_REQUEST, "최소 참가 인원은 1명 이상이어야 합니다."),
+    NOT_PARTY_LEADER(HttpStatus.BAD_REQUEST, "파티장만 수정할 수 있습니다."),
 
     // PartyMember ErrorCode
-
+    PARTY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "파티 멤버를 찾을 수 없습니다."),
 
     // Market ErrorCode
 
@@ -50,9 +56,12 @@ public enum ErrorCode {
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "조회되는 품목이 없습니다."),
 
     // Notification ErrorCode
-
+    SSE_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "SSE 연결 오류입니다."),
+    NOT_FOUND_NOTIFICATION(HttpStatus.BAD_REQUEST, "존재하지 않는 알림입니다."),
 
     // Chat ErrorCode
+    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
+    CHATROOM_RESIST_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방입니다"),
 
 
     // UserReview ErrorCode

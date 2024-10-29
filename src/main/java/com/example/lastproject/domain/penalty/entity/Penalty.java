@@ -8,11 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @Entity
+@Table(name = "penalty")
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "penalty")
 public class Penalty extends Timestamped {
 
     @Id
@@ -31,4 +31,5 @@ public class Penalty extends Timestamped {
         this.partyId = partyId;
         this.userId = userId;
     }
+
 }
