@@ -11,6 +11,7 @@ import com.example.lastproject.domain.notification.entity.Notification;
 import com.example.lastproject.domain.notification.entity.NotificationType;
 import com.example.lastproject.domain.notification.repository.EmitterRepository;
 import com.example.lastproject.domain.notification.repository.NotificationRepository;
+import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.party.entity.Party;
 import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.Map;
 
@@ -149,15 +149,15 @@ public class NotificationServiceImpl implements NotificationService {
     /**
      * 찜한 품목의 파티가 생성된 경우 알림을 보냅니다.
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param party 생성된 파티 정보
+     * @param partyResponse 생성된 파티 정보
      */
     @Override
     @Transactional
-    public void notifyUsersAboutPartyCreation(AuthUser authUser, Party party) {
+    public void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse) {
         User receiver = User.fromAuthUser(authUser);
-        String content = party.getItem().getCategory() + "품목 파티가 생성되었습니다.";
+        String content = partyResponse.getCategory() + "품목 파티가 생성되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/parties/" + party.getId();
+        String redirectUrl = CLIENT_BASIC_URL + "/parties/" + partyResponse.getId();
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
@@ -176,7 +176,7 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     @Transactional
-    public void notifyUsersAboutMarketCancellation(AuthUser authUser, Market market) {
+    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Market market) {
         User receiver = User.fromAuthUser(authUser);
         String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
 
