@@ -11,5 +11,6 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Long> 
     List<PartyMember> findByInviteStatus(PartyMemberInviteStatus status);
     List<PartyMember> findByPartyId(Long partyId);
     Optional<PartyMember> findByPartyIdAndUserId(Long partyId, Long userId);
+    List<PartyMember> findByUserId(Long userId);
 
 }
