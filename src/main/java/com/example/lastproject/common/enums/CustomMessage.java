@@ -10,9 +10,11 @@ public enum CustomMessage {
     SIGNUP_SUCCESS(HttpStatus.OK, "님의 가입이 완료되었습니다."),
     SIGNIN_SUCCESS(HttpStatus.OK, "로그인이 완료되었습니다."),
     WITHDRAWAL_SUCCESS(HttpStatus.OK, "님의 탈퇴가 완료되었습니다."),
-    USER_FOUND(HttpStatus.OK, "조회되었습니다."),
-    CHANGE_PW_SUCCESS(HttpStatus.OK, "비밀번호 변경이 완료되었습니다."),
-    CHANGE_DETAIL_SUCCESS(HttpStatus.OK, "정보 변경이 완료되었습니다."),
+    USER_FOUND(HttpStatus.OK, "님이 조회되었습니다."),
+    CHANGE_PW_SUCCESS(HttpStatus.OK, "님의 비밀번호 변경이 완료되었습니다."),
+    CHANGE_DETAIL_SUCCESS(HttpStatus.OK, "님의 정보 변경이 완료되었습니다."),
+
+
 
     // UserRole Success
 
@@ -31,7 +33,7 @@ public enum CustomMessage {
 
 
     // Item Success
-
+    ON_SUCCESS(HttpStatus.OK, "Success"),
 
     // LikeItem Success
 
