@@ -4,12 +4,12 @@ import com.example.lastproject.common.enums.CustomMessage;
 import lombok.Getter;
 
 @Getter
-public class SigninResponse {
+public class WithdrawalResponse {
 
     private final String msg;
 
-    public SigninResponse() {
-        this.msg = CustomMessage.SIGNIN_SUCCESS.getMessage();
+    public WithdrawalResponse(String nickname) {
+        this.msg = nickname + CustomMessage.WITHDRAWAL_SUCCESS.getMessage();
     }
 
 }
