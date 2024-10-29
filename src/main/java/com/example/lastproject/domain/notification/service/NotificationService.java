@@ -1,78 +1,37 @@
 package com.example.lastproject.domain.notification.service;
 
 import com.example.lastproject.domain.auth.entity.AuthUser;
-import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
+import com.example.lastproject.domain.market.entity.Market;
+import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
+import com.example.lastproject.domain.notification.dto.response.NotificationListResponseDto;
 import com.example.lastproject.domain.notification.entity.Notification;
-import com.example.lastproject.domain.notification.repository.NotificationRepository;
-import com.example.lastproject.domain.user.entity.User;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.example.lastproject.domain.party.dto.response.PartyResponse;
+import com.example.lastproject.domain.party.entity.Party;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+public interface NotificationService {
 
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
-@Slf4j
-public class NotificationService {
+    // 찜한 품목의 파티가 생성된 경우 알림
+    void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse);
 
-    private final Map<Long, SseEmitter> userEmitters = new ConcurrentHashMap<>();
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final NotificationRepository notificationRepository;
+    // 찜한 품목의 파티가 취소된 경우 알림
+    void notifyUsersAboutPartyCancellation(AuthUser authUser, Market market);
 
-    @Transactional
-    public void sendNotification(AuthUser authUser, String message) {
-        User user = User.fromAuthUser(authUser);
+    // 참가 신청한 파티의 채팅창이 생성된 경우 알림
+    void notifyUsersAboutPartyChatCreation(AuthUser authUser, Party party);
 
-        // User 객체를 사용해 Notification 생성
-        Notification notification = new Notification(message, user);
+    SseEmitter subscribe(AuthUser authUser, String lastEventId);
 
-        // Notification 저장
-        Notification savedNotification = notificationRepository.save(notification);
+    void send(AuthUser authUser, NotificationRequest request);
 
-        // 실시간 알림 전송
-        sendRealTimeNotification(savedNotification);
-    }
+    void sendToClient(SseEmitter emitter, String emitterId, String eventId, Object data);
 
-    private void sendRealTimeNotification(Notification notification) {
-        SseEmitter emitter = userEmitters.get(notification.getReceiver().getId());
-        if (emitter != null) {
-            executor.execute(() -> {
-                try {
-                    emitter.send(SseEmitter.event().name("notification").data(notification.getMessage()));
-                } catch (Exception e) {
-                    // 예외 처리: 클라이언트와의 연결이 끊겼을 경우
-                    userEmitters.remove(notification.getReceiver().getId()); // 해당 사용자의 emitter 제거
-                    // SLF4J 로깅 사용
-                    log.error("Failed to send notification to user with ID: {}. Error: {}", notification.getReceiver().getId(), e.getMessage());
-                    // 예외 스택 추적을 로그에 출력
-                    log.error("Exception: ", e);
-                }
-            });
-        }
-    }
+    NotificationListResponseDto getNotifications(AuthUser authUser);
 
-    @Transactional
-    public SseEmitter createEmitter(Long userId) {
-        SseEmitter emitter = new SseEmitter();
-        userEmitters.put(userId, emitter);
-        return emitter;
-    }
+    void readNotification(Long notificationId, AuthUser authUser);
 
-    public List<NotificationResponse> getNotifications(Long receiverId) {
-        List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId);
-        log.info("receiverId: {}", receiverId);
+    void deleteNotification(Long notificationId, AuthUser authUser);
 
-        return notifications.stream()
-                .map(notification -> new NotificationResponse(notification.getId(), notification.getMessage(), notification.getCreatedAt()))
-                .collect(Collectors.toList());  // 각 알림에 대해 ID와 메시지만 반환
-    }
+    Notification findNotification(Long notificationId);
+
 }
