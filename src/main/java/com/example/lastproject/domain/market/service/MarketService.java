@@ -16,26 +16,22 @@ public class MarketService {
 
     private final MarketRepository marketRepository;
 
-    @Transactional
     // 마켓 저장
-    public String saveMarket(MarketRequestDto requestDto) {
+    @Transactional
+    public void saveMarket(MarketRequestDto requestDto) {
 
         marketRepository.save(requestDto.toEntity());
-
-        return "성공 임시메시지";
     }
 
-    @Transactional
     // 마켓 삭제
-    public String deleteMarket(Long marketId) {
+    @Transactional
+    public void deleteMarket(Long marketId) {
 
         Market market = marketRepository.findById(marketId).orElseThrow(
                 () -> new CustomException(ErrorCode.MARKET_NOT_FOUND)
         );
 
         marketRepository.delete(market);
-
-        return "성공 임시메시지";
     }
 
 }

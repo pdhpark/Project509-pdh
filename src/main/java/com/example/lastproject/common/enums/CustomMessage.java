@@ -9,7 +9,7 @@ public enum CustomMessage {
     // User Success
     USER_FOUND(HttpStatus.OK, "님이 조회되었습니다."),
     CHANGE_PW_SUCCESS(HttpStatus.OK, "님의 비밀번호 변경이 완료되었습니다."),
-    CHANGE_DETAIL_SUCCESS(HttpStatus.OK, "님의 정보 변경이 완료되었습니다.");
+    CHANGE_DETAIL_SUCCESS(HttpStatus.OK, "님의 정보 변경이 완료되었습니다."),
 
 
 
@@ -34,7 +34,7 @@ public enum CustomMessage {
 
 
     // Item Success
-
+    ON_SUCCESS(HttpStatus.OK, "Success");
 
     
     // LikeItem Success

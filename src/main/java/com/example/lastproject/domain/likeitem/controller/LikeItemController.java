@@ -1,12 +1,15 @@
 package com.example.lastproject.domain.likeitem.controller;
 
+import com.example.lastproject.common.enums.CustomMessage;
 import com.example.lastproject.domain.auth.entity.AuthUser;
-import com.example.lastproject.domain.likeitem.dto.response.LikeItemResponseDto;
+import com.example.lastproject.domain.likeitem.dto.response.LikeItemResponse;
 import com.example.lastproject.domain.likeitem.service.LikeItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,11 +25,11 @@ public class LikeItemController {
      * @return 성공메시지
      */
     @PostMapping("/{itemId}")
-    public ResponseEntity<String> bookmarkItem(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long itemId) {
+    public ResponseEntity<CustomMessage> bookmarkItem(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long itemId) {
 
         likeItemService.bookmarkItem(authUser, itemId);
 
-        return ResponseEntity.ok("성공임시메시지");
+        return ResponseEntity.ok(CustomMessage.ON_SUCCESS);
     }
 
     /**
@@ -35,9 +38,9 @@ public class LikeItemController {
      * @return 조회된 즐겨찾기 품록 객체리스트
      */
     @GetMapping
-    public ResponseEntity<LikeItemResponseDto> getLikeItems(@AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<List<LikeItemResponse>> getLikeItems(@AuthenticationPrincipal AuthUser authUser) {
 
-        LikeItemResponseDto response = likeItemService.getLikeItems(authUser);
+        List<LikeItemResponse> response = likeItemService.getLikeItems(authUser);
 
         return ResponseEntity.ok(response);
     }

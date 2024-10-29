@@ -47,12 +47,13 @@ public enum ErrorCode {
 
 
     // Item ErrorCode
-
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "조회되는 품목이 없습니다."),
 
     // Notification ErrorCode
 
 
     // Chat ErrorCode
+
 
     // UserReview ErrorCode
 
@@ -69,8 +70,6 @@ public enum ErrorCode {
     // Market ErrorCode
     MARKET_NOT_FOUND(HttpStatus.NOT_FOUND, "마켓 정보를 찾을 수 없습니다."),
 
-    // Item ErrorCode
-    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 품목을 찾을 수 없습니다."),
 
     // Notification ErrorCode
 

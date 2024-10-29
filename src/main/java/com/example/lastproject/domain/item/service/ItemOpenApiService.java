@@ -40,7 +40,7 @@ public class ItemOpenApiService {
     /**
      * 오픈 API 요청후 응답받은 데이터를 item 엔티티에 저장
      */
-    public String getItemFromOpenApi() {
+    public void getItemFromOpenApi() {
 
         // getApiRangeIndexParameters 메서드 주석 참조
         Map<String,String> values = getApiRangeIndexParameters(10000, 1000);
@@ -53,7 +53,6 @@ public class ItemOpenApiService {
             saveOpenApiRequest(value.getKey(), value.getValue());
         }
 
-        return "품목데이터 업데이트완료";
     }
 
     // api 요청메서드
