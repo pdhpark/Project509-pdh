@@ -3,7 +3,7 @@ package com.example.lastproject.domain.user.entity;
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.likeitem.entity.LikeItem;
-import com.example.lastproject.domain.user.dto.UserUpdateRequest;
+import com.example.lastproject.domain.user.dto.request.UserUpdateRequest;
 import com.example.lastproject.domain.user.enums.UserRole;
 import com.example.lastproject.domain.user.enums.UserStatus;
 import jakarta.persistence.*;
@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Entity
+@Table(name = "users")
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
 public class User extends Timestamped {
 
     @Id
@@ -73,7 +73,6 @@ public class User extends Timestamped {
     }
 
     public void update(UserUpdateRequest request) {
-        this.email = request.getEmail();
         this.nickname = request.getNickname();
         this.address = request.getAddress();
     }
@@ -81,4 +80,5 @@ public class User extends Timestamped {
     public void toggleDelete() {
         this.userStatus = UserStatus.DELETED;
     }
+
 }
