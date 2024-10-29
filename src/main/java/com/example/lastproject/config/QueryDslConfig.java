@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class QueryDslConfig {
+
     @PersistenceContext
     private EntityManager em;
 
@@ -16,4 +17,5 @@ class QueryDslConfig {
     public JPAQueryFactory jpaQueryFactory() {
         return new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
     }
+
 }
