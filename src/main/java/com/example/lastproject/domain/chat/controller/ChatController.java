@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.chat.controller;
 
-import com.example.lastproject.domain.chat.dto.ChatMessageDto;
-import com.example.lastproject.domain.chat.entity.ChatMessage;
+import com.example.lastproject.domain.chat.dto.ChatMessageRequest;
+import com.example.lastproject.domain.chat.dto.ChatMessageResponse;
 import com.example.lastproject.domain.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -27,10 +27,10 @@ public class ChatController {
      * @return 입력한 메세지 저장 후 반환
      * return값을 @SendTo의 파라미터에 적힌 토픽으로 보냄
      */
-    @MessageMapping("/chat.sendMessage/{roomId}")
-    @SendTo("/topic/{roomId}")
-    public ChatMessageDto sendMessage(@DestinationVariable("roomId") String roomId, @Payload ChatMessageDto chatMessage) {
-        return chatMessageService.sendMessage(roomId, chatMessage);
+    @MessageMapping("/chat.sendMessage/{chatRoomId}")
+    @SendTo("/topic/{chatRoomId}")
+    public ChatMessageRequest sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage) {
+        return chatMessageService.sendMessage(chatRoomId, chatMessage);
     }
 
     /**
@@ -38,25 +38,25 @@ public class ChatController {
      * @return "00님이 입장하셨습니다"와 같은 Greeting 메세지
      * return값을 @SendTo의 파라미터에 적힌 토픽으로 보냄
      */
-    @MessageMapping("/chat.addUser/{roomId}")
-    @SendTo("/topic/{roomId}")
-    public ChatMessageDto addUser(@DestinationVariable("roomId") String roomId, @Payload ChatMessageDto chatMessage,
-                               SimpMessageHeaderAccessor headerAccessor) {
-        // web socket session에 username, roomId 추가
+    @MessageMapping("/chat.addUser/{chatRoomId}")
+    @SendTo("/topic/{chatRoomId}")
+    public ChatMessageRequest addUser(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage,
+                                      SimpMessageHeaderAccessor headerAccessor) {
+        // web socket session에 username, chatRoomId 추가
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        headerAccessor.getSessionAttributes().put("roomId", roomId);
+        headerAccessor.getSessionAttributes().put("chatRoomId", chatRoomId);
         return chatMessage;
     }
 
     /**
      * 채팅방에 사용자가 입장했을 때, 입장 전에 존재했던 채팅 메세지들을 보여주는 메서드
-     * @param roomId
+     * @param chatRoomId
      * @return
      */
-    @GetMapping("/chat/history/{roomId}")
+    @GetMapping("/chat/history/{chatRoomId}")
     @ResponseBody
-    public List<ChatMessage> getChatHistory(@PathVariable String roomId) {
-        return chatMessageService.getChatHistory(roomId);
+    public List<ChatMessageResponse> getChatHistory(@PathVariable Long chatRoomId) {
+        return chatMessageService.getChatHistory(chatRoomId);
     }
 
 }

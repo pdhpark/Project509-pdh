@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.chat.controller;
 
-import com.example.lastproject.domain.chat.dto.ChatMessageDto;
+import com.example.lastproject.domain.chat.dto.ChatMessageRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,18 +38,18 @@ public class WebSocketEventListener {
         //STOMP 메시지의 헤더 정보를 쉽게 다룰 수 있는 유틸리티 클래스를 사용.
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        //채팅방을 나간 유저의 이름과 roomId를 추출
+        //채팅방을 나간 유저의 이름과 chatRoomId를 추출
         String username = (String) headerAccessor.getSessionAttributes().get("username");
-        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        Long chatRoomId = (Long) headerAccessor.getSessionAttributes().get("chatRoomId");
         if(username != null) {
             logger.info("User Disconnected : " + username);
 
-            ChatMessageDto chatMessage = new ChatMessageDto();
-            chatMessage.changeType(ChatMessageDto.MessageType.LEAVE);
+            ChatMessageRequest chatMessage = new ChatMessageRequest();
+            chatMessage.changeType(ChatMessageRequest.MessageType.LEAVE);
             chatMessage.changeSender(username);
 
             //해당 채팅방에 Leave메세지 전송
-            messagingTemplate.convertAndSend("/topic/"+roomId, chatMessage);
+            messagingTemplate.convertAndSend("/topic/"+chatRoomId, chatMessage);
         }
     }
 
