@@ -155,7 +155,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void notifyUsersAboutPartyCreation(AuthUser authUser, Party party) {
         User receiver = User.fromAuthUser(authUser);
-        String content = party.getItem().getProductName() + "품목 파티가 생성되었습니다.";
+        String content = party.getItem().getCategory() + "품목 파티가 생성되었습니다.";
 
         String redirectUrl = CLIENT_BASIC_URL + "/parties/" + party.getId();
 
