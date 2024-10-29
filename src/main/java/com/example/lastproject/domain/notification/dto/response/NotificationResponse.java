@@ -24,7 +24,7 @@ public class NotificationResponse {
                 .content(notification.getContent())
                 .type(notification.getNotificationType())
                 .url(notification.getUrl())
-                .isRead(false)
+                .isRead(notification.isRead())
                 .createdAt(notification.getCreatedAt())
                 .build();
     }
