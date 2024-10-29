@@ -44,6 +44,11 @@ public class PartyService {
         Item item = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
 
+        // 품목 개수 확인
+        if(request.getItemCount() < 1) {
+            throw new CustomException(ErrorCode.INVALID_ITEM_COUNT);
+        }
+
         // 시간 검증
         if(request.getStartTime().isAfter(request.getEndTime())) {
             throw new CustomException(ErrorCode.INVALID_TIME_RANGE);
@@ -51,7 +56,7 @@ public class PartyService {
 
         // 인원 수 검증
         if(request.getMembersCount() < 1) {
-            throw new CustomException(ErrorCode.INVALID_MIN_MEMBERS);
+            throw new CustomException(ErrorCode.INVALID_MEMBERS_COUNT);
         }
 
         // 파티 생성
@@ -60,6 +65,7 @@ public class PartyService {
                 request.getMarketAddress(),
                 item,
                 request.getItemUnit(),
+                request.getItemCount(),
                 request.getStartTime(),
                 request.getEndTime(),
                 request.getMembersCount()
@@ -84,7 +90,7 @@ public class PartyService {
     }
 
     // 파티 조회
-    @Transactional(readOnly = true)
+    @Transactional
     public List<PartyResponse> getAllActiveParties() {
         List<Party> parties = partyRepository.findAllByPartyStatus(PartyStatus.OPEN);
         return parties.stream()
@@ -93,6 +99,7 @@ public class PartyService {
     }
 
     // 파티 수정
+    @Transactional
     public PartyResponse updateParty(Long partyId, PartyUpdateRequest request, Long userId) {
         // 파티 조회
         Party party = partyRepository.findById(partyId)
@@ -107,18 +114,27 @@ public class PartyService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
 
         // 수정할 정보 업데이트
-        party.updateDetails(item, request.getItemUnit(), request.getStartTime(), request.getEndTime(), request.getMembersCount());
+        party.updateDetails(item, request.getItemUnit(), request.getItemCount(), request.getStartTime(), request.getEndTime(), request.getMembersCount());
 
-        partyRepository.save(party);
         return new PartyResponse(party);
     }
 
-    // 파티 완료 기능
+    // 장보기 완료: 파티 상태를 DONE으로 변경
     @Transactional
-    public void deleteParty(Long partyId) {
+    public void completeParty(Long partyId) {
         Party party = partyRepository.findById(partyId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
-        partyRepository.delete(party);
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTY_NOT_FOUND));
+
+        party.completeParty();
+    }
+
+    // 파티 취소: 파티 상태를 CANCELED로 변경
+    @Transactional
+    public void cancelParty(Long partyId) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTY_NOT_FOUND));
+
+        party.cancelParty();
     }
 
 }
