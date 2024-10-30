@@ -201,7 +201,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
         User receiver = User.fromAuthUser(authUser);
-        String content = "참가 신청한 파티의 채팅창이 취소되었습니다.";
+        String content = "참가 신청한 파티의 채팅방이 생성되었습니다.";
 
         String redirectUrl = CLIENT_BASIC_URL + "/chat/history/" + chatRoomResponse.getId();
 
@@ -236,7 +236,6 @@ public class NotificationServiceImpl implements NotificationService {
     public void readNotification(Long notificationId, AuthUser authUser) {
         Notification notification = findNotification(notificationId);
         notification.read();
-        notificationRepository.save(notification);
     }
 
     /**
