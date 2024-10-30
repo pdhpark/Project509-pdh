@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -27,10 +28,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ItemOpenApiService {
     // api 인증키와 포트주소 주입 필요(다른 파트 테스트시 충돌 방지 주석처리)
-//    @Value("${ITEM_API_KEY}")
+    @Value("${ITEM_API_KEY}")
     private String apiKey;
 
-//    @Value("${API_PORT}")
+    @Value("${API_PORT}")
     private String apiPort;
 
     private final RestTemplate restTemplate;
@@ -40,7 +41,7 @@ public class ItemOpenApiService {
     /**
      * 오픈 API 요청후 응답받은 데이터를 item 엔티티에 저장
      */
-    public String getItemFromOpenApi() {
+    public void getItemFromOpenApi() {
 
         // getApiRangeIndexParameters 메서드 주석 참조
         Map<String,String> values = getApiRangeIndexParameters(10000, 1000);
@@ -53,7 +54,6 @@ public class ItemOpenApiService {
             saveOpenApiRequest(value.getKey(), value.getValue());
         }
 
-        return "품목데이터 업데이트완료";
     }
 
     // api 요청메서드

@@ -1,11 +1,15 @@
 package com.example.lastproject.domain.penalty.dto.response;
 
-import lombok.AllArgsConstructor;
+import com.example.lastproject.common.enums.CustomMessage;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class PenaltyResponse {
 
-    private final Long id;
+    private final String msg;
+
+    public PenaltyResponse() {
+        this.msg = CustomMessage.PENALTY_SEND_SUCCESS.getMessage();
+    }
+
 }

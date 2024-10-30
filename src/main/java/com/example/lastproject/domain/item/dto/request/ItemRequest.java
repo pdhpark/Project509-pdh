@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class ItemRequestDto {
+public class ItemRequest {
     @NotBlank(message = "카테고리는 필수 입력 항목입니다.")
     private String category;
 

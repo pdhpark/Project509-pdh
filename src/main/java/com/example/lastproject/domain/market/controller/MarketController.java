@@ -1,5 +1,6 @@
 package com.example.lastproject.domain.market.controller;
 
+import com.example.lastproject.common.enums.CustomMessage;
 import com.example.lastproject.domain.market.dto.request.MarketRequestDto;
 import com.example.lastproject.domain.market.service.MarketService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,11 @@ public class MarketController {
      * @return 성공메시지
      */
     @PostMapping
-    public ResponseEntity<String> saveMarket(@RequestBody MarketRequestDto requestDto){
-        return ResponseEntity.ok(marketService.saveMarket(requestDto));
+    public ResponseEntity<CustomMessage> saveMarket(@RequestBody MarketRequestDto requestDto){
+
+        marketService.saveMarket(requestDto);
+
+        return ResponseEntity.ok(CustomMessage.ON_SUCCESS);
     }
 
     /**
@@ -29,8 +33,11 @@ public class MarketController {
      * @return 성공 메시지
      */
     @DeleteMapping("/{marketId}")
-    public ResponseEntity<String> deleteMarket(@PathVariable Long marketId){
-        return ResponseEntity.ok(marketService.deleteMarket(marketId));
+    public ResponseEntity<CustomMessage> deleteMarket(@PathVariable Long marketId){
+
+        marketService.deleteMarket(marketId);
+
+        return ResponseEntity.ok(CustomMessage.ON_SUCCESS);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.lastproject.domain.party.service;
 
 import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.annotation.LogisticsNotify;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
@@ -38,6 +39,7 @@ public class PartyService {
      * @return PartyResponse 생성된 파티 정보
      */
     @Transactional
+    @LogisticsNotify
     public PartyResponse createParty(PartyCreateRequest request, Long userId) {
 
         // 거래 품목 조회
@@ -136,5 +138,4 @@ public class PartyService {
 
         party.cancelParty();
     }
-
 }

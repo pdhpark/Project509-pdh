@@ -2,12 +2,14 @@ package com.example.lastproject.domain.item.service;
 
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
-import com.example.lastproject.domain.item.dto.request.ItemRequestDto;
+import com.example.lastproject.domain.item.dto.response.ItemResponse;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -16,22 +18,16 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    @Transactional
-    public String addItem(ItemRequestDto requestDto) {
+    public List<ItemResponse> searchItems(String keyword) {
 
-        itemRepository.save(requestDto.toEntity());
+        List<ItemResponse> results = itemRepository.searchItemsByKeywordInCategory(keyword);
 
-        return "성공 임시메시지";
-    }
+        // 조회되는 품목이 없으면 예외문 반환
+        if (results.isEmpty()) {
+            throw new CustomException(ErrorCode.ITEM_NOT_FOUND);
+        }
 
-    @Transactional
-    public String deleteItem(Long itemId) {
-
-        Item item = validateEntity(itemId);
-
-        itemRepository.delete(item);
-
-        return "성공 임시메시지";
+        return results;
     }
 
     // 재사용 잦은 코드 메서드 분리

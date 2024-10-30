@@ -3,6 +3,7 @@ package com.example.lastproject.domain.likeitem.entity;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "like_item")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class  LikeItem {
 
     @Id

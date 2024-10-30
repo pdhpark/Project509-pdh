@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/auth/signin", "/auth/signup").permitAll()
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() //frontend관련(css,js) 경로 permit
-                                .requestMatchers("/ws/**", "/topic/**", "/app/**", "index.html", "/").permitAll() //chat관련 경로 및 frontend관련(html) 경로 permit
+                                .requestMatchers("/ws/**", "/topic/**", "/app/**", "index.html", "/", "/chat/**").permitAll() //chat관련 경로 및 frontend관련(html) 경로 permit
                                 .anyRequest().authenticated()
                 )
                 .build();

@@ -29,13 +29,16 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "검증에 실패했습니다."),
     SIGNUP_ERROR(HttpStatus.BAD_REQUEST, "가입에 실패했습니다."),
     SIGNIN_ERROR(HttpStatus.BAD_REQUEST, "로그인에 실패했습니다."),
+    WITHDRAWAL_ERROR(HttpStatus.BAD_REQUEST, "탈퇴에 실패했습니다."),
     NO_CONTENTS(HttpStatus.BAD_REQUEST, "변경된 정보가 없습니다."),
 
     // UserRole ErrorCode
     USERROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "조회에 실패했습니다."),
+    USERROLE_FAILED(HttpStatus.NOT_FOUND, "접근할 수 없습니다."),
 
-    // UserPenalty ErrorCode
 
+    // Penalty ErrorCode
+    CANNOT_PENALIZE_SELF(HttpStatus.BAD_REQUEST, "본인에게 페널티를 부여할 수 없습니다."),
 
     // Party ErrorCode
     PARTY_NOT_FOUND(HttpStatus.NOT_FOUND, "파티를 찾을 수 없습니다."),
@@ -52,12 +55,16 @@ public enum ErrorCode {
 
 
     // Item ErrorCode
-
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "조회되는 품목이 없습니다."),
 
     // Notification ErrorCode
-
+    SSE_CONNECTION_ERROR(HttpStatus.BAD_REQUEST, "SSE 연결 오류입니다."),
+    NOT_FOUND_NOTIFICATION(HttpStatus.BAD_REQUEST, "존재하지 않는 알림입니다."),
 
     // Chat ErrorCode
+    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
+    CHATROOM_RESIST_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방입니다"),
+
 
     // UserReview ErrorCode
 
@@ -74,8 +81,6 @@ public enum ErrorCode {
     // Market ErrorCode
     MARKET_NOT_FOUND(HttpStatus.NOT_FOUND, "마켓 정보를 찾을 수 없습니다."),
 
-    // Item ErrorCode
-    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 품목을 찾을 수 없습니다."),
 
     // Notification ErrorCode
 
