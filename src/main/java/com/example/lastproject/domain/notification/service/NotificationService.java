@@ -23,12 +23,11 @@ public interface NotificationService {
     SseEmitter subscribe(AuthUser authUser, String lastEventId);
     // 알림을 저장하고, 저장된 알림을 클라이언트에게 전송합니다.
     void send(AuthUser authUser, NotificationRequest request);
-    // 알림 저장
-    Notification saveNotification(AuthUser authUser, NotificationRequest request);
     // 비동기적으로 알림을 전송합니다.
     void sendNotification(AuthUser authUser, Notification notification);
 
-
+    // 알림 저장
+    Notification saveNotification(AuthUser authUser, NotificationRequest request);
     // 사용자의 알림 목록을 조회합니다.
     NotificationListResponse getNotifications(AuthUser authUser);
     // 알림을 읽음 처리합니다.
