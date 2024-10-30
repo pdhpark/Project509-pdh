@@ -91,6 +91,10 @@ public enum ErrorCode {
     // Chat ErrorCode
 
 
+    // User Access ErrorCode
+    UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "해당 작업에 대한 권한이 없습니다."),
+
+
     // 아래 코드 위에 ErrorCode 작성
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾지 못했습니다.");
 

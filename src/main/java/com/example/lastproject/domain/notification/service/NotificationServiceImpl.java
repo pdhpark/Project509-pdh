@@ -234,7 +234,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void readNotification(Long notificationId, AuthUser authUser) {
-        Notification notification = findNotification(notificationId);
+        Notification notification = verifyNotificationAccess(notificationId, authUser);
         notification.read();
     }
 
@@ -246,18 +246,26 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void deleteNotification(Long notificationId, AuthUser authUser) {
-        notificationRepository.delete(findNotification(notificationId));
+        Notification notification = verifyNotificationAccess(notificationId, authUser);
+        notificationRepository.delete(notification);
     }
 
     /**
-     * 특정 ID의 알림을 조회합니다.
-     * @param id 알림의 고유 ID
-     * @return CustomException 해당 ID의 알림이 존재하지 않을 경우 발생합니다.
+     * 특정 ID의 알림을 조회하고 권한을 검증합니다.
+     * @param notificationId 알림의 고유 ID
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @return 알림 객체
+     * @throws CustomException 해당 ID의 알림이 존재하지 않거나 접근 권한이 없을 경우 발생합니다.
      */
-    @Override
-    public Notification findNotification(Long id) {
-        return notificationRepository.findById(id)
+    public Notification verifyNotificationAccess(Long notificationId, AuthUser authUser) {
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NOTIFICATION));
+
+        if (!notification.getReceiver().getId().equals(authUser.getUserId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        return notification;
     }
 
 }

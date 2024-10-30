@@ -32,6 +32,6 @@ public interface NotificationService {
 
     void deleteNotification(Long notificationId, AuthUser authUser);
 
-    Notification findNotification(Long notificationId);
+    Notification verifyNotificationAccess(Long notificationId, AuthUser authUser);
 
 }
