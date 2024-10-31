@@ -42,6 +42,14 @@ public class ApiDataReader implements ItemStreamReader<String> {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    // 매 실행시 요청 파라미터 초기화
+    @Override
+    public void open(ExecutionContext executionContext) throws ItemStreamException {
+        startIndex = 1; // 초기값 설정
+        endIndex = 1000; // 초기값 설정
+        totalPage = 0; // 총 페이지 수 초기화
+    }
+
     @Override
     public String read() throws JsonProcessingException {
 
