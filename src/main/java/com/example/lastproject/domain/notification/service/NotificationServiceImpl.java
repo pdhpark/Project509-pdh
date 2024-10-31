@@ -43,6 +43,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return SseEmitter(발신기)를 생성하여 반환합니다.
      */
     @Transactional
+    @Override
     public SseEmitter subscribe(AuthUser authUser, String lastEventId) {
         String emitterId = makeTimeIncludeId(authUser);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
@@ -110,6 +111,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return 새롭게 생성된 알림 정보(id, content, type, enum, url, isRead, createdAt)가 포함된 notification 객체
      */
     @Transactional
+    @Override
     public Notification saveNotification(AuthUser authUser, NotificationRequest request) {
         User user = User.fromAuthUser(authUser);
 
@@ -130,6 +132,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @param notification 전송할 알림 정보
      */
     @Async
+    @Override
     public void sendNotification(AuthUser authUser, Notification notification) {
         String receiverId = String.valueOf(authUser.getUserId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -151,8 +154,8 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param partyResponse 생성된 파티 정보
      */
-    @Override
     @Transactional
+    @Override
     public void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse) {
         User receiver = User.fromAuthUser(authUser);
         String content = partyResponse.getCategory() + "품목 파티가 생성되었습니다.";
@@ -174,8 +177,8 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param market 취소된 마켓 정보
      */
-    @Override
     @Transactional
+    @Override
     public void notifyUsersAboutPartyCancellation(AuthUser authUser, Market market) {
         User receiver = User.fromAuthUser(authUser);
         String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
@@ -197,8 +200,8 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param chatRoomResponse 생성된 파티의 채팅창
      */
-    @Override
     @Transactional
+    @Override
     public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
         User receiver = User.fromAuthUser(authUser);
         String content = "참가 신청한 파티의 채팅방이 생성되었습니다.";
@@ -245,8 +248,8 @@ public class NotificationServiceImpl implements NotificationService {
      * @param notificationId 삭제할 알림의 ID
      * @param authUser 요청을 보낸 인증된 사용자 정보
      */
-    @Override
     @Transactional
+    @Override
     public void deleteNotification(Long notificationId, AuthUser authUser) {
         verifyNotificationAccess(notificationId, authUser);
         Notification notification = notificationRepository.findById(notificationId)
@@ -260,6 +263,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @throws CustomException 해당 ID의 알림이 존재하지 않거나 접근 권한이 없을 경우 발생합니다.
      */
+    @Override
     public void verifyNotificationAccess(Long notificationId, AuthUser authUser) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NOTIFICATION));
