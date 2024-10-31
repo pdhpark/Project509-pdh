@@ -2,14 +2,12 @@ package com.example.lastproject.config;
 
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
+import org.springframework.batch.item.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -26,7 +24,7 @@ import java.net.URI;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ApiDataReader implements ItemReader<String> {
+public class ApiDataReader implements ItemStreamReader<String> {
 
     // 환경변수 설정값이 없으면 빈 문자열을 주입
     @Value("${ITEM_API_KEY:}")
@@ -45,7 +43,7 @@ public class ApiDataReader implements ItemReader<String> {
     private final ObjectMapper objectMapper;
 
     @Override
-    public String read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public String read() throws JsonProcessingException {
 
         String jsonData = itemOpenApiRequest(startIndex, endIndex);
 
@@ -56,15 +54,16 @@ public class ApiDataReader implements ItemReader<String> {
             totalPage = nodeTemp.path(apiUrl).path("totalCnt").asInt();
         }
 
-        // 마지막 페이지에 요청 종료
+        // 마지막 페이지에 요청 종료 및 페이지 초기화
         if (totalPage < startIndex) {
             return null;
         }
 
         // 다음 요청페이지 파라미터값 설정
         startIndex = startIndex + 1000;
-        endIndex = endIndex + 1000;
-
+        if(startIndex > 1) {
+            endIndex = Math.min(endIndex + 1000, totalPage);
+        }
         return jsonData;
     }
 

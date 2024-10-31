@@ -16,9 +16,8 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
+import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -73,7 +72,7 @@ public class BatchConfig {
                  */
                 .<String, List<Item>>chunk(10, platformTransactionManager)
                 // api 요청 리더 클래스 주입
-                .reader(apiDataReader)
+                .reader(synchronizedApiDataReader())
                 // 응답 데이터 엔티티 파싱 클래스 주입
                 .processor(jsonToEntityProcessor())
                 // 엔티티 저장 라이터 클래스 주입
@@ -81,6 +80,18 @@ public class BatchConfig {
                 // 병렬처리 설정 주입
                 .taskExecutor(taskExecutor())
                 .build();
+    }
+
+    /**
+     * ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸 데이터의 일관성을 보장해줌
+     * ApiDataReader 클래스의 read() 메서드에 하나의 쓰레드만 접근할 수 있게 해주는 빈 클래스
+     * @return ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸서 반환
+     */
+    @Bean
+    public ItemReader<String> synchronizedApiDataReader(){
+        SynchronizedItemStreamReader<String> synchronizedItemReader = new SynchronizedItemStreamReader<>();
+        synchronizedItemReader.setDelegate((ItemStreamReader<String>) apiDataReader);
+        return synchronizedItemReader;
     }
 
     // Json 응답데이터를 엔티티로 파싱하는 Processor 클래스
@@ -144,9 +155,9 @@ public class BatchConfig {
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 최소 스레드수
-        executor.setCorePoolSize(10);
+        executor.setCorePoolSize(4);
         // 최대 스레드수
-        executor.setMaxPoolSize(15);
+        executor.setMaxPoolSize(8);
         // 대기 큐 용량
         executor.setQueueCapacity(100);
         executor.initialize();
