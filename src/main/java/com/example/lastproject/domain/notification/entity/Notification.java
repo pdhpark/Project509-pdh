@@ -33,6 +33,12 @@ public class Notification extends Timestamped {
     @Column(nullable = false)
     private boolean isRead;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private String message = "Default message";
+
+
+
     public void read() {
         this.isRead = true;
     }

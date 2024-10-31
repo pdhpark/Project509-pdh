@@ -50,6 +50,8 @@ public enum ErrorCode {
 
     // PartyMember ErrorCode
     PARTY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "파티 멤버를 찾을 수 없습니다."),
+    ALREADY_PARTY_MEMBER(HttpStatus.BAD_REQUEST, "같은 파티에 중복으로 참가 신청할 수 없습니다."),
+    CANNOT_JOIN_OWN_PARTY(HttpStatus.BAD_REQUEST, "파티장은 본인이 생성한 파티에 참가 신청할 수 없습니다."),
 
     // Market ErrorCode
 
