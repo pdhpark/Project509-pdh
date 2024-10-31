@@ -17,8 +17,9 @@ import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,22 +81,23 @@ public class ChatRoomService {
      */
     public List<ChatRoomResponse> getChatRooms(AuthUser authUser) {
 
-        //PartyMember라는 중간테이블에서 유저가 참가했던 파티들의 List가져오기
+        // 사용자가 참여한 PartyMember 리스트를 가져옴
         List<PartyMember> parties = partyMemberRepository.findByUserId(authUser.getUserId());
 
-        //응답할 Dto List생성
-        List<ChatRoomResponse> chatRoomResponses = new ArrayList<>();
+        // PartyMember 리스트에서 party ID 수집
+        List<Long> partyIds = parties.stream()
+                .map(partyMember -> partyMember.getParty().getId())
+                .collect(Collectors.toList());
 
-        //유저가 참가했던 각 파티들에 대한 ChatRoom을 찾아 응답Dto에 Mapping
-        for(PartyMember partyMember : parties) {
-            ChatRoom chatRoom = chatRoomRepository.findByPartyId(partyMember.getParty().getId());
-            ChatRoomResponse chatRoomResponse = new ChatRoomResponse(chatRoom);
-            chatRoomResponses.add(chatRoomResponse);
-        }
+        // 수집한 party ID 목록을 기반으로 모든 ChatRoom을 한 번의 쿼리로 가져옴
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByParty_IdIn(partyIds);
 
-        return chatRoomResponses;
-
+        // 각 ChatRoom을 ChatRoomResponse로 매핑
+        return chatRooms.stream()
+                .map(ChatRoomResponse::new)
+                .collect(Collectors.toList());
     }
+
 
     /**
      * 채팅방을 삭제하는 메서드 : 채팅방의 Status값을 ACTIVATED -> DELETED로 변경
