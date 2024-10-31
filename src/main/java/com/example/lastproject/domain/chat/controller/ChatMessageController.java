@@ -39,21 +39,6 @@ public class ChatMessageController {
     }
 
     /**
-     * 경로를 "/app/chat.addUser"로 가지고있는 메세지들이 다뤄지는 메서드
-     * @return "00님이 입장하셨습니다"와 같은 Greeting 메세지
-     * return값을 @SendTo의 파라미터에 적힌 토픽으로 보냄
-     */
-    @MessageMapping("/chat.addUser/{chatRoomId}")
-    @SendTo("/topic/{chatRoomId}")
-    public ChatMessageRequest addUser(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage,
-                                      SimpMessageHeaderAccessor headerAccessor) {
-        // web socket session에 username, chatRoomId 추가
-        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        headerAccessor.getSessionAttributes().put("chatRoomId", chatRoomId);
-        return chatMessage;
-    }
-
-    /**
      * 채팅방에 사용자가 입장했을 때, 입장 전에 존재했던 채팅 메세지들을 보여주는 메서드
      * @param chatRoomId
      * @return

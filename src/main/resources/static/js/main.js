@@ -31,7 +31,7 @@ function connect(event) {
         var socket = new SockJS(`/ws?token=${jwtToken}`);
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, onConnected, onError);
+        stompClient.connect({chatRoomId: chatRoomId}, onConnected, onError);
     }
     event.preventDefault();
 }
@@ -49,12 +49,6 @@ function onConnected() {
                 onMessageReceived({ body: JSON.stringify(message) });
             });
         });
-
-    // Tell your username to the server
-    stompClient.send("/app/chat.addUser/" + chatRoomId,
-        {},
-        JSON.stringify({sender: username, type: 'JOIN'})
-    )
 
     connectingElement.classList.add('hidden');
 }
