@@ -5,6 +5,7 @@ import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.market.entity.Market;
+import com.example.lastproject.domain.market.repository.MarketRepository;
 import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
@@ -16,6 +17,7 @@ import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +32,14 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final MarketRepository marketRepository;
     private final EmitterRepository emitterRepository;
 
     // 연결 지속시간 한시간
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
-    private static final String CLIENT_BASIC_URL = "http://localhost:8080";
+
+    @Value("${client.basic-url}")
+    private String clientBasicUrl;  // 환경 설정에서 URL을 가져와 사용
 
     /**
      * SSE 연결
@@ -43,6 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return SseEmitter(발신기)를 생성하여 반환합니다.
      */
     @Transactional
+    @Override
     public SseEmitter subscribe(AuthUser authUser, String lastEventId) {
         String emitterId = makeTimeIncludeId(authUser);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
@@ -51,15 +57,15 @@ public class NotificationServiceImpl implements NotificationService {
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
 
-        // 최초 연결시 더미데이터가 없으면 503 오류가 발생하기 때문에 해당 더미 데이터 생성
-        String eventId = makeTimeIncludeId(authUser);
-        sendToClient(emitter, emitterId, eventId, "연결되었습니다. EventStream Created. [userId=" + authUser.getUserId() + "]");
-
         if (!lastEventId.isEmpty()) {
             Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(authUser.getUserId()));
             events.entrySet().stream()
                     .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                     .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getKey(), entry.getValue()));
+        } else {
+            // 최초 연결시 더미데이터가 없으면 503 오류가 발생하기 때문에 해당 더미 데이터 생성
+            String eventId = makeTimeIncludeId(authUser);
+            sendToClient(emitter, emitterId, eventId, "연결되었습니다. EventStream Created. [userId=" + authUser.getUserId() + "]");
         }
         return emitter;
     }
@@ -110,6 +116,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return 새롭게 생성된 알림 정보(id, content, type, enum, url, isRead, createdAt)가 포함된 notification 객체
      */
     @Transactional
+    @Override
     public Notification saveNotification(AuthUser authUser, NotificationRequest request) {
         User user = User.fromAuthUser(authUser);
 
@@ -130,6 +137,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @param notification 전송할 알림 정보
      */
     @Async
+    @Override
     public void sendNotification(AuthUser authUser, Notification notification) {
         String receiverId = String.valueOf(authUser.getUserId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -151,13 +159,13 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param partyResponse 생성된 파티 정보
      */
-    @Override
     @Transactional
+    @Override
     public void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse) {
         User receiver = User.fromAuthUser(authUser);
         String content = partyResponse.getCategory() + "품목 파티가 생성되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/parties/" + partyResponse.getId();
+        String redirectUrl = clientBasicUrl + "/parties/" + partyResponse.getId();
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
@@ -172,15 +180,19 @@ public class NotificationServiceImpl implements NotificationService {
     /**
      * 찜한 품목의 파티가 취소된 경우 알림을 보냅니다.
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param market 취소된 마켓 정보
+     * @param marketId 취소된 마켓의 고유 ID
      */
-    @Override
     @Transactional
-    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Market market) {
+    @Override
+    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Long marketId) {
         User receiver = User.fromAuthUser(authUser);
+
+        Market market = marketRepository.findById(marketId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MARKET_NOT_FOUND));
+
         String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/parties";
+        String redirectUrl = clientBasicUrl + "/parties";
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
@@ -197,13 +209,13 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param chatRoomResponse 생성된 파티의 채팅창
      */
-    @Override
     @Transactional
+    @Override
     public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
         User receiver = User.fromAuthUser(authUser);
-        String content = "참가 신청한 파티의 채팅창이 취소되었습니다.";
+        String content = "참가 신청한 파티의 채팅방이 생성되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/chat/history/" + chatRoomResponse.getId();
+        String redirectUrl = clientBasicUrl + "/chat/history/" + chatRoomResponse.getId();
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
@@ -234,9 +246,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void readNotification(Long notificationId, AuthUser authUser) {
-        Notification notification = findNotification(notificationId);
+        verifyNotificationAccess(notificationId, authUser);
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NOTIFICATION));
         notification.read();
-        notificationRepository.save(notification);
     }
 
     /**
@@ -244,21 +257,29 @@ public class NotificationServiceImpl implements NotificationService {
      * @param notificationId 삭제할 알림의 ID
      * @param authUser 요청을 보낸 인증된 사용자 정보
      */
-    @Override
     @Transactional
+    @Override
     public void deleteNotification(Long notificationId, AuthUser authUser) {
-        notificationRepository.delete(findNotification(notificationId));
+        verifyNotificationAccess(notificationId, authUser);
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NOTIFICATION));
+        notificationRepository.delete(notification);
     }
 
     /**
-     * 특정 ID의 알림을 조회합니다.
-     * @param id 알림의 고유 ID
-     * @return CustomException 해당 ID의 알림이 존재하지 않을 경우 발생합니다.
+     * 특정 ID의 알림을 조회하고 권한을 검증합니다.
+     * @param notificationId 알림의 고유 ID
+     * @param authUser 요청을 보낸 인증된 사용자 정보
+     * @throws CustomException 해당 ID의 알림이 존재하지 않거나 접근 권한이 없을 경우 발생합니다.
      */
     @Override
-    public Notification findNotification(Long id) {
-        return notificationRepository.findById(id)
+    public void verifyNotificationAccess(Long notificationId, AuthUser authUser) {
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_NOTIFICATION));
+
+        if (!notification.getReceiver().getId().equals(authUser.getUserId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 
 }

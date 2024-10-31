@@ -7,11 +7,13 @@ import lombok.Getter;
 public class LikeItemResponse {
     private final long id;
     private final String category;
+    private final String productName;
 
     @QueryProjection
-    public LikeItemResponse(long id, String category) {
+    public LikeItemResponse(long id, String category, String productName) {
         this.id = id;
         this.category = category;
+        this.productName = productName;
     }
 
 }

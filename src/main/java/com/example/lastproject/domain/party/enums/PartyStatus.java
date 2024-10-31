@@ -7,4 +7,5 @@ public enum PartyStatus {
     CANCELED, //취소
     PENDING, //보류
     DONE //완료
+
 }

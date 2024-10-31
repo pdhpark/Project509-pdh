@@ -3,11 +3,14 @@ package com.example.lastproject.domain.party.entity;
 import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.party.enums.PartyStatus;
+import com.example.lastproject.domain.partymember.entity.PartyMember;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "Party")
@@ -30,6 +33,9 @@ public class Party extends Timestamped {
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
+    @Column(name = "item_count", nullable = false)
+    private int itemCount;
+
     @Column(name = "item_unit", nullable = false)
     private String itemUnit;
 
@@ -39,17 +45,21 @@ public class Party extends Timestamped {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @Column(name = "members_count", nullable = false) // 수정된 부분
+    @Column(name = "members_count", nullable = false)
     private int membersCount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PartyStatus partyStatus = PartyStatus.OPEN;
 
-    public Party(String marketName, String marketAddress, Item item, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
+    @OneToMany(mappedBy = "party")
+    private List<PartyMember> partyMembers;
+
+    public Party(String marketName, String marketAddress, Item item, int itemCount, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
         this.marketName = marketName;
         this.marketAddress = marketAddress;
         this.item = item;
+        this.itemCount = itemCount;
         this.itemUnit = itemUnit;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -57,16 +67,20 @@ public class Party extends Timestamped {
         this.partyStatus = PartyStatus.OPEN;
     }
 
-    public void updatePartyStatus(PartyStatus newStatus) {
-        this.partyStatus = newStatus;
+    // 장보기 완료
+    public void completeParty() {
+        this.partyStatus = PartyStatus.DONE;
     }
 
-    public void updateMembersCount(int membersCount) {
-        this.membersCount = membersCount;
+    // 파티 취소
+    public void cancelParty() {
+        this.partyStatus = PartyStatus.CANCELED;
     }
 
-    public void updateDetails(Item item, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
+    // 상세 정보 업데이트 및 시간 검증 로직 추가
+    public void updateDetails(Item item, int itemCount, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
         this.item = item;
+        this.itemCount = itemCount;
         this.itemUnit = itemUnit;
         this.startTime = startTime;
         this.endTime = endTime;
