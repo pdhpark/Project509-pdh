@@ -22,8 +22,8 @@ public class ChatRoomController {
      * @return : 채팅방 생성
      */
     @PostMapping("/{partyId}")
-    public ResponseEntity<ChatRoomResponse> createChatRoom(@PathVariable Long partyId) {
-        return ResponseEntity.ok(chatRoomService.createChatRoom(partyId));
+    public ResponseEntity<ChatRoomResponse> createChatRoom(@PathVariable Long partyId, @AuthenticationPrincipal AuthUser authUser) {
+        return ResponseEntity.ok(chatRoomService.createChatRoom(partyId, authUser));
     }
 
     /**
@@ -42,8 +42,8 @@ public class ChatRoomController {
      * @return : 채팅방 상태값 변경(ACTIVATED -> DELETED)
      */
     @DeleteMapping("/{chatRoomId}")
-    public ResponseEntity<Void> deleteChatRoom(@PathVariable Long chatRoomId) {
-        chatRoomService.deleteChatRoom(chatRoomId);
+    public ResponseEntity<Void> deleteChatRoom(@PathVariable Long chatRoomId, @AuthenticationPrincipal AuthUser authUser) {
+        chatRoomService.deleteChatRoom(chatRoomId, authUser);
         return ResponseEntity.noContent().build();
     }
 

@@ -8,9 +8,12 @@ import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.chat.entity.ChatRoom;
 import com.example.lastproject.domain.chat.repository.ChatRoomRepository;
 import com.example.lastproject.domain.party.entity.Party;
+import com.example.lastproject.domain.party.enums.PartyStatus;
 import com.example.lastproject.domain.party.repository.PartyRepository;
 import com.example.lastproject.domain.partymember.entity.PartyMember;
+import com.example.lastproject.domain.partymember.enums.PartyMemberRole;
 import com.example.lastproject.domain.partymember.repository.PartyMemberRepository;
+import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,7 @@ public class ChatRoomService {
      */
     @Transactional
     @LogisticsNotify
-    public ChatRoomResponse createChatRoom(Long partyId) {
+    public ChatRoomResponse createChatRoom(Long partyId, AuthUser authUser) {
 
         //이미 채팅방이 존재하는지 검증
         if(chatRoomRepository.existsByPartyId(partyId)) {
@@ -44,6 +47,23 @@ public class ChatRoomService {
         Party party = partyRepository.findById(partyId).orElseThrow(
                 () -> new CustomException(ErrorCode.PARTY_NOT_FOUND)
         );
+
+        //대상 파티가 활성화된 상태인지 검증
+        if(!party.getPartyStatus().equals(PartyStatus.JOINED)) {
+            throw new CustomException(ErrorCode.INVALID_PARTY_STATUS);
+        }
+
+        User user = User.fromAuthUser(authUser);
+
+        //대상 파티 소속인지 검증
+        PartyMember partyMember = partyMemberRepository.findByPartyIdAndUserId(partyId, user.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.PARTY_MEMBER_NOT_FOUND)
+        );
+
+        //대상 파티의 파티장인지 검증
+        if(!partyMember.getRole().equals(PartyMemberRole.LEADER)) {
+            throw new CustomException(ErrorCode.NOT_PARTY_LEADER);
+        }
 
         //생성 및 저장
         ChatRoom chatRoom = new ChatRoom(party);
@@ -82,12 +102,31 @@ public class ChatRoomService {
      * @param chatRoomId
      */
     @Transactional
-    public void deleteChatRoom(Long chatRoomId) {
+    public void deleteChatRoom(Long chatRoomId, AuthUser authUser) {
 
         //채팅방이 존재하는지 검증
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(
                 () -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND)
         );
+
+        Long partyId = chatRoom.getParty().getId();
+
+        //채팅방 삭제 대상이 되는 파티가 존재하는지 검증
+        Party party = partyRepository.findById(partyId).orElseThrow(
+                () -> new CustomException(ErrorCode.PARTY_NOT_FOUND)
+        );
+
+        User user = User.fromAuthUser(authUser);
+
+        //대상 파티 소속인지 검증
+        PartyMember partyMember = partyMemberRepository.findByPartyIdAndUserId(partyId, user.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.PARTY_MEMBER_NOT_FOUND)
+        );
+
+        //대상 파티의 파티장인지 검증
+        if(!partyMember.getRole().equals(PartyMemberRole.LEADER)) {
+            throw new CustomException(ErrorCode.NOT_PARTY_LEADER);
+        }
 
         chatRoom.deleteChatRoom();
 
