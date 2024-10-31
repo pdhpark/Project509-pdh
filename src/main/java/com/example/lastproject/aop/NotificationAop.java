@@ -38,8 +38,6 @@ public class NotificationAop {
             // Party 정보를 PartyResponse에서 가져와 알림 전송
             notificationService.notifyUsersAboutPartyCreation(authUser, partyResponse);
             log.info("Party 생성 알림 전송 완료: {}", partyResponse);
-
-
         } else {
             log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
         }
@@ -79,8 +77,6 @@ public class NotificationAop {
             // Party 정보를 PartyResponse에서 가져와 알림 전송
             notificationService.notifyUsersAboutPartyChatCreation(authUser, chatRoomResponse);
             log.info("ChatRoom 생성 알림 전송 완료: {}", chatRoomResponse);
-
-
         } else {
             log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
         }
