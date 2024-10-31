@@ -52,15 +52,15 @@ public class NotificationServiceImpl implements NotificationService {
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
 
-        // 최초 연결시 더미데이터가 없으면 503 오류가 발생하기 때문에 해당 더미 데이터 생성
-        String eventId = makeTimeIncludeId(authUser);
-        sendToClient(emitter, emitterId, eventId, "연결되었습니다. EventStream Created. [userId=" + authUser.getUserId() + "]");
-
         if (!lastEventId.isEmpty()) {
             Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(authUser.getUserId()));
             events.entrySet().stream()
                     .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                     .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getKey(), entry.getValue()));
+        } else {
+            // 최초 연결시 더미데이터가 없으면 503 오류가 발생하기 때문에 해당 더미 데이터 생성
+            String eventId = makeTimeIncludeId(authUser);
+            sendToClient(emitter, emitterId, eventId, "연결되었습니다. EventStream Created. [userId=" + authUser.getUserId() + "]");
         }
         return emitter;
     }
