@@ -19,9 +19,11 @@ public class Item {
     private Long id;
 
     private String category;
+    private String productName;
 
-    public Item(String category) {
+    public Item(String category, String productName) {
         this.category = category;
+        this.productName = productName;
     }
 
 }

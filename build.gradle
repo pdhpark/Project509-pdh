@@ -39,6 +39,10 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// Spring batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	testImplementation 'org.springframework.boot:spring-boot-starter-batch'
+
 	// Mockito
 	testImplementation 'org.mockito:mockito-core:4.0.0'
 
