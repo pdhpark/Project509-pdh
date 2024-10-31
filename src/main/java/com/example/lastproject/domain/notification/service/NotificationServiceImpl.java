@@ -16,6 +16,7 @@ import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     // 연결 지속시간 한시간
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
-    private static final String CLIENT_BASIC_URL = "http://localhost:8080";
+
+    @Value("${client.basic-url}")
+    private String clientBasicUrl;  // 환경 설정에서 URL을 가져와 사용
 
     /**
      * SSE 연결
@@ -160,7 +163,7 @@ public class NotificationServiceImpl implements NotificationService {
         User receiver = User.fromAuthUser(authUser);
         String content = partyResponse.getCategory() + "품목 파티가 생성되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/parties/" + partyResponse.getId();
+        String redirectUrl = clientBasicUrl + "/parties/" + partyResponse.getId();
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
@@ -183,7 +186,7 @@ public class NotificationServiceImpl implements NotificationService {
         User receiver = User.fromAuthUser(authUser);
         String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/parties";
+        String redirectUrl = clientBasicUrl + "/parties";
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
@@ -206,7 +209,7 @@ public class NotificationServiceImpl implements NotificationService {
         User receiver = User.fromAuthUser(authUser);
         String content = "참가 신청한 파티의 채팅방이 생성되었습니다.";
 
-        String redirectUrl = CLIENT_BASIC_URL + "/chat/history/" + chatRoomResponse.getId();
+        String redirectUrl = clientBasicUrl + "/chat/history/" + chatRoomResponse.getId();
 
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
