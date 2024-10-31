@@ -88,7 +88,7 @@ public class BatchConfig {
      * @return ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸서 반환
      */
     @Bean
-    public ItemReader<String> synchronizedApiDataReader(){
+    public ItemReader<String> synchronizedApiDataReader() {
         SynchronizedItemStreamReader<String> synchronizedItemReader = new SynchronizedItemStreamReader<>();
         synchronizedItemReader.setDelegate((ItemStreamReader<String>) apiDataReader);
         return synchronizedItemReader;
@@ -118,13 +118,17 @@ public class BatchConfig {
                     // 제이슨리스트에서 Item 엔티티객체로 파싱
                     for (Object row : jsonRowList) {
                         JSONObject jsonItem = (JSONObject) row;
-                        Item item = new Item(
-                                // 품목분류명 추출후 아이템 category 매핑
-                                (String) jsonItem.get("STD_PRDLST_NM"),
-                                // 품목명 추출후 아이템 productName 매핑
-                                (String) jsonItem.get("STD_SPCIES_NM")
-                        );
-                        items.add(item);
+                        // 품목분류명 추출
+                        String category = (String) jsonItem.get("STD_PRDLST_NM");
+                        // 품목명 추출
+                        String productName = (String) jsonItem.get("STD_SPCIES_NM");
+
+                        // 기존 데이터 중복여부 검증
+                        boolean isDuplicate = itemRepository.existsByProductName(productName);
+                        if (!isDuplicate) {
+                            Item item = new Item(category, productName);
+                            items.add(item);
+                        }
                     }
                     log.info("데이터 파싱 종료");
 
