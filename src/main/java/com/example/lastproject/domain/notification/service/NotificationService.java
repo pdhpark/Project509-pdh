@@ -14,7 +14,7 @@ public interface NotificationService {
     // 찜한 품목의 파티가 생성된 경우 알림
     void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse);
     // 찜한 품목의 파티가 취소된 경우 알림
-    void notifyUsersAboutPartyCancellation(AuthUser authUser, Market market);
+    void notifyUsersAboutPartyCancellation(AuthUser authUser, Long marketId);
     // 참가 신청한 파티의 채팅창이 생성된 경우 알림
     void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse);
 

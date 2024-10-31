@@ -5,6 +5,7 @@ import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.market.entity.Market;
+import com.example.lastproject.domain.market.repository.MarketRepository;
 import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
@@ -31,6 +32,7 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final MarketRepository marketRepository;
     private final EmitterRepository emitterRepository;
 
     // 연결 지속시간 한시간
@@ -178,12 +180,16 @@ public class NotificationServiceImpl implements NotificationService {
     /**
      * 찜한 품목의 파티가 취소된 경우 알림을 보냅니다.
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param market 취소된 마켓 정보
+     * @param marketId 취소된 마켓의 고유 ID
      */
     @Transactional
     @Override
-    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Market market) {
+    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Long marketId) {
         User receiver = User.fromAuthUser(authUser);
+
+        Market market = marketRepository.findById(marketId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MARKET_NOT_FOUND));
+
         String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
 
         String redirectUrl = clientBasicUrl + "/parties";
