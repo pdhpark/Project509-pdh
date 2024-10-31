@@ -21,9 +21,7 @@ public class MarketController {
      */
     @PostMapping
     public ResponseEntity<CustomMessage> saveMarket(@RequestBody MarketRequestDto requestDto){
-
         marketService.saveMarket(requestDto);
-
         return ResponseEntity.ok(CustomMessage.ON_SUCCESS);
     }
 
@@ -34,9 +32,7 @@ public class MarketController {
      */
     @DeleteMapping("/{marketId}")
     public ResponseEntity<CustomMessage> deleteMarket(@PathVariable Long marketId){
-
         marketService.deleteMarket(marketId);
-
         return ResponseEntity.ok(CustomMessage.ON_SUCCESS);
     }
 
