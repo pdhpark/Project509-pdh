@@ -1,5 +1,6 @@
 package com.example.lastproject.domain.chat.controller;
 
+import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatMessageRequest;
 import com.example.lastproject.domain.chat.dto.ChatMessageResponse;
 import com.example.lastproject.domain.chat.service.ChatMessageService;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
 
@@ -29,8 +30,12 @@ public class ChatController {
      */
     @MessageMapping("/chat.sendMessage/{chatRoomId}")
     @SendTo("/topic/{chatRoomId}")
-    public ChatMessageRequest sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage) {
-        return chatMessageService.sendMessage(chatRoomId, chatMessage);
+    public ChatMessageRequest sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+
+        // WebSocket 세션에서 AuthUser 객체를 가져옴
+        AuthUser authUser = (AuthUser) headerAccessor.getSessionAttributes().get("authUser");
+
+        return chatMessageService.sendMessage(chatRoomId, chatMessage, authUser);
     }
 
     /**

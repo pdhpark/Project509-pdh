@@ -2,6 +2,7 @@ package com.example.lastproject.domain.chat.service;
 
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
+import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatMessageRequest;
 import com.example.lastproject.domain.chat.dto.ChatMessageResponse;
 import com.example.lastproject.domain.chat.entity.ChatMessage;
@@ -26,12 +27,16 @@ public class ChatMessageService {
      * @param chatMessageRequest : 채팅타입, 내용, 보낸사람
      * @return : 입력된 채팅메세지
      */
-    public ChatMessageRequest sendMessage(Long chatRoomId, ChatMessageRequest chatMessageRequest) {
+    public ChatMessageRequest sendMessage(Long chatRoomId, ChatMessageRequest chatMessageRequest, AuthUser authUser) {
 
         //채팅메세지가 전송되는 채팅방 찾기
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(
                 () -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND)
         );
+
+        // AuthUser의 email을 ChatMessageRequest의 sender로 설정
+        chatMessageRequest.changeSender(authUser.getEmail());
+
         ChatMessage chatMessage = new ChatMessage(chatMessageRequest, chatRoom);
         chatMessageRepository.save(chatMessage);
         return chatMessageRequest;
