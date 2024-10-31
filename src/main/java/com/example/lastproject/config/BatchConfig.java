@@ -144,11 +144,11 @@ public class BatchConfig {
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 최소 스레드수
-        executor.setCorePoolSize(5);
+        executor.setCorePoolSize(10);
         // 최대 스레드수
-        executor.setMaxPoolSize(10);
+        executor.setMaxPoolSize(15);
         // 대기 큐 용량
-        executor.setQueueCapacity(11);
+        executor.setQueueCapacity(100);
         executor.initialize();
         return executor;
     }
