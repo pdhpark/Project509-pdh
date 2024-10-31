@@ -19,6 +19,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
@@ -43,6 +44,9 @@ import java.util.List;
 @EnableBatchProcessing
 @RequiredArgsConstructor
 public class BatchConfig {
+
+    @Value("${API_URL:}")
+    private String apiUrl;
 
     private final JobRepository jobRepository;
     private final ItemRepository itemRepository;
@@ -94,7 +98,7 @@ public class BatchConfig {
                     JSONObject jsonResponse = (JSONObject) jsonParser.parse(jsonData);
 
                     // 제이슨 응답데이터를 제이슨 리스트로 파싱
-                    JSONObject jsonBody = (JSONObject) jsonResponse.get("Grid_20151207000000000328_1");
+                    JSONObject jsonBody = (JSONObject) jsonResponse.get(apiUrl);
                     JSONArray jsonRowList = (JSONArray) jsonBody.get("row");
 
                     // 파싱한 데이터를 담을 리스트

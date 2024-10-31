@@ -2,6 +2,8 @@ package com.example.lastproject.config;
 
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemReader;
@@ -19,6 +21,7 @@ import java.net.URI;
 /**
  * BatchConfig 설정에 들어가는 클래스로
  * api 요청후 응답데이터를 받아오는 Reader 클래스
+ * null 을 리턴하면 요청종료
  */
 @Slf4j
 @Component
@@ -32,20 +35,33 @@ public class ApiDataReader implements ItemReader<String> {
     @Value("${API_PORT:}")
     private String apiPort;
 
+    @Value("${API_URL:}")
+    private String apiUrl;
+
     private int startIndex = 1;
     private int endIndex = 1000;
-    private final int maxIndex = 10000;
+    private int totalPage;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
     @Override
     public String read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
 
-        if (endIndex > maxIndex) {
-           return null;
-        }
-
         String jsonData = itemOpenApiRequest(startIndex, endIndex);
 
+        // 처음 실행시에만 총 페이지 계산
+        if (startIndex == 1) {
+            JsonNode nodeTemp = objectMapper.readTree(jsonData);
+            // 총 페이지수 계산
+            totalPage = nodeTemp.path(apiUrl).path("totalCnt").asInt();
+        }
+
+        // 마지막 페이지에 요청 종료
+        if (totalPage < startIndex) {
+            return null;
+        }
+
+        // 다음 요청페이지 파라미터값 설정
         startIndex = startIndex + 1000;
         endIndex = endIndex + 1000;
 
@@ -55,7 +71,7 @@ public class ApiDataReader implements ItemReader<String> {
     private String itemOpenApiRequest(int startIndex, int endIndex) {
 
         // api 키가 주입되었을때만 실행
-        if (!apiKey.isBlank() && !apiPort.isBlank()) {
+        if (!apiKey.isBlank() && !apiPort.isBlank() && !apiUrl.isBlank()) {
             try {
                 // 포트 설정
                 StringBuilder urlBuilder = new StringBuilder(apiPort);
@@ -64,7 +80,7 @@ public class ApiDataReader implements ItemReader<String> {
                 // 데이터 응답 형태
                 urlBuilder.append("/" + "json");
                 // api URL
-                urlBuilder.append("/" + "Grid_20151207000000000328_1");
+                urlBuilder.append("/" + apiUrl);
                 // 요청 데이터 인덱스 시작 위치
                 urlBuilder.append("/" + startIndex);
                 // 요청 데이터 인덱스 종료 위치
