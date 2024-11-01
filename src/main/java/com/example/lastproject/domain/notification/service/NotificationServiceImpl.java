@@ -191,7 +191,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MARKET_NOT_FOUND));
 
         String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
-
         String redirectUrl = clientBasicUrl + "/parties";
 
         NotificationRequest request = NotificationRequest.builder()
