@@ -36,12 +36,25 @@ public class PartyMember {
     @Column(nullable = false)
     private PartyMemberRole role;
 
-    // 초대 보류가 기본 값
+    // 파티원이 참가 신청을 누르면 기본값은 PENDING(보류) 상태
     public PartyMember(User user, Party party, PartyMemberRole role) {
         this.user = user;
         this.party = party;
         this.role = role;
         this.inviteStatus = PartyMemberInviteStatus.PENDING;
+    }
+
+    // 파티장이 들어온 신청서를 수락하거나 거절 할 때
+    public PartyMember(User user, Party party, PartyMemberRole role, PartyMemberInviteStatus inviteStatus) {
+        this.user = user;
+        this.party = party;
+        this.role = role;
+        this.inviteStatus = inviteStatus;
+    }
+
+    // 파티원 : 참가 신청
+    public void sendJoinRequest() {
+        // 상태는 기본값인 PENDING으로 유지
     }
 
     public PartyMember updateInviteStatus(PartyMemberInviteStatus newStatus) {
@@ -54,22 +67,22 @@ public class PartyMember {
         return this;
     }
 
-    // 초대 수락
+    // 파티장 : 파티 신청 수락
     public void acceptInvite() {
         this.inviteStatus = PartyMemberInviteStatus.ACCEPTED;
     }
 
-    // 초대 거절
+    // 파티장 : 파티 신청 거절
     public void rejectInvite() {
         this.inviteStatus = PartyMemberInviteStatus.REJECTED;
     }
 
-    // 리더 확인
+    // 파티장(리더) 확인
     public boolean isLeader() {
         return this.role == PartyMemberRole.LEADER;
     }
 
-    // 멤버 확인
+    // 파티원(멤버) 확인
     public boolean isMember() {
         return this.role == PartyMemberRole.MEMBER;
     }

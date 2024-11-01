@@ -6,10 +6,12 @@ import lombok.Getter;
 @Getter
 public class SignupResponse {
 
+    private final String nickname;
     private final String msg;
 
     public SignupResponse(String nickname) {
-        this.msg = nickname + CustomMessage.SIGNUP_SUCCESS.getMessage();
+        this.nickname = nickname;
+        this.msg = CustomMessage.SIGNUP_SUCCESS.getMessage();
     }
 
 }

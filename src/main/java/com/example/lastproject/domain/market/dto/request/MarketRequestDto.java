@@ -2,7 +2,6 @@ package com.example.lastproject.domain.market.dto.request;
 
 import com.example.lastproject.domain.market.entity.Market;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

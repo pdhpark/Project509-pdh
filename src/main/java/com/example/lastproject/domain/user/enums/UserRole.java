@@ -21,7 +21,7 @@ public enum UserRole {
                 .filter(r -> r.name().equalsIgnoreCase(role))
                 .findFirst()
                 .orElseThrow(
-                        () -> new CustomException(ErrorCode.USERROLE_NOT_FOUND)
+                        () -> new CustomException(ErrorCode.USER_ROLE_NOT_FOUND)
                 );
     }
 
