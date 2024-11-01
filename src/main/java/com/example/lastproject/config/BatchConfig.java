@@ -4,6 +4,7 @@ import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -16,9 +17,8 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
+import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Job => 전체 배치처리 과정을 추상화한 클래스 : 배치의 실행 단위로 전체 배치 작업을 정의
@@ -52,6 +54,8 @@ public class BatchConfig {
     private final ItemRepository itemRepository;
     private final ApiDataReader apiDataReader;
     private final PlatformTransactionManager platformTransactionManager;
+    // 중복 데이터 검증시 사용되는 캐시 데이터
+    private final Set<String> itemCache = new HashSet<>();
 
     // Job 설정
     @Bean
@@ -73,7 +77,7 @@ public class BatchConfig {
                  */
                 .<String, List<Item>>chunk(10, platformTransactionManager)
                 // api 요청 리더 클래스 주입
-                .reader(apiDataReader)
+                .reader(synchronizedApiDataReader())
                 // 응답 데이터 엔티티 파싱 클래스 주입
                 .processor(jsonToEntityProcessor())
                 // 엔티티 저장 라이터 클래스 주입
@@ -81,6 +85,19 @@ public class BatchConfig {
                 // 병렬처리 설정 주입
                 .taskExecutor(taskExecutor())
                 .build();
+    }
+
+    /**
+     * ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸 데이터의 일관성을 보장해줌
+     * ApiDataReader 클래스의 read() 메서드에 하나의 쓰레드만 접근할 수 있게 해주는 빈 클래스
+     *
+     * @return ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸서 반환
+     */
+    @Bean
+    public ItemReader<String> synchronizedApiDataReader() {
+        SynchronizedItemStreamReader<String> synchronizedItemReader = new SynchronizedItemStreamReader<>();
+        synchronizedItemReader.setDelegate((ItemStreamReader<String>) apiDataReader);
+        return synchronizedItemReader;
     }
 
     // Json 응답데이터를 엔티티로 파싱하는 Processor 클래스
@@ -107,13 +124,20 @@ public class BatchConfig {
                     // 제이슨리스트에서 Item 엔티티객체로 파싱
                     for (Object row : jsonRowList) {
                         JSONObject jsonItem = (JSONObject) row;
-                        Item item = new Item(
-                                // 품목분류명 추출후 아이템 category 매핑
-                                (String) jsonItem.get("STD_PRDLST_NM"),
-                                // 품목명 추출후 아이템 productName 매핑
-                                (String) jsonItem.get("STD_SPCIES_NM")
-                        );
-                        items.add(item);
+                        // 품목분류명 추출
+                        String category = (String) jsonItem.get("STD_PRDLST_NM");
+                        // 품목명 추출
+                        String productName = (String) jsonItem.get("STD_SPCIES_NM");
+
+                        // 캐시에서 중복 검사
+                        if (itemCache.isEmpty()) {
+                            Item item = new Item(category, productName);
+                            items.add(item);
+                        } else if (!itemCache.contains(productName)) {
+                            Item item = new Item(category, productName);
+                            items.add(item);
+                            itemCache.add(productName); // 캐시에 추가
+                        }
                     }
                     log.info("데이터 파싱 종료");
 
@@ -132,6 +156,10 @@ public class BatchConfig {
         return new ItemWriter<List<Item>>() {
             @Override
             public void write(Chunk<? extends List<Item>> chunk) throws Exception {
+                // 캐쉬에 데이터가 없을경우 업데이트 (첫번째 업데이트에는 캐쉬에 데이터가 없기때문에 write 메서드에서 검증로직 추가)
+                if (itemCache.isEmpty()) {
+                    itemCache.addAll(itemRepository.findAllByProductNames());
+                }
                 for (List<Item> items : chunk) {
                     itemRepository.saveAll(items);
                 }
@@ -153,5 +181,9 @@ public class BatchConfig {
         return executor;
     }
 
+    // 서버 시작시 기존 데이터베이스에서 데이터를 가져와 캐시에 저장
+    @PostConstruct
+    public void loadDataToCache() {
+        itemRepository.findAll().forEach(item -> itemCache.add(item.getProductName()));
+    }
 }
-
