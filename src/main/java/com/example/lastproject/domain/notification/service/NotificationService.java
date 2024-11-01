@@ -2,7 +2,6 @@ package com.example.lastproject.domain.notification.service;
 
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
-import com.example.lastproject.domain.market.entity.Market;
 import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.entity.Notification;
@@ -12,9 +11,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public interface NotificationService {
 
     // 찜한 품목의 파티가 생성된 경우 알림
-    void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse);
+    void notifyUsersAboutPartyCreation(AuthUser authUser, String itemName, Long partyId);
     // 찜한 품목의 파티가 취소된 경우 알림
-    void notifyUsersAboutPartyCancellation(AuthUser authUser, Long marketId);
+    void notifyUsersAboutPartyCancellation(AuthUser authUser);
     // 참가 신청한 파티의 채팅창이 생성된 경우 알림
     void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse);
 
