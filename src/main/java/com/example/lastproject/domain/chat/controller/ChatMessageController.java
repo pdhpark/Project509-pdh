@@ -1,8 +1,10 @@
 package com.example.lastproject.domain.chat.controller;
 
+import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatMessageRequest;
 import com.example.lastproject.domain.chat.dto.ChatMessageResponse;
 import com.example.lastproject.domain.chat.service.ChatMessageService;
+import com.example.lastproject.domain.chat.service.ChatMessageServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,7 +20,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
 
@@ -29,23 +31,12 @@ public class ChatController {
      */
     @MessageMapping("/chat.sendMessage/{chatRoomId}")
     @SendTo("/topic/{chatRoomId}")
-    public ChatMessageRequest sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage) {
-        return chatMessageService.sendMessage(chatRoomId, chatMessage);
-    }
+    public ChatMessageRequest sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage, SimpMessageHeaderAccessor headerAccessor) {
 
-    /**
-     * 경로를 "/app/chat.addUser"로 가지고있는 메세지들이 다뤄지는 메서드
-     * @return "00님이 입장하셨습니다"와 같은 Greeting 메세지
-     * return값을 @SendTo의 파라미터에 적힌 토픽으로 보냄
-     */
-    @MessageMapping("/chat.addUser/{chatRoomId}")
-    @SendTo("/topic/{chatRoomId}")
-    public ChatMessageRequest addUser(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageRequest chatMessage,
-                                      SimpMessageHeaderAccessor headerAccessor) {
-        // web socket session에 username, chatRoomId 추가
-        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        headerAccessor.getSessionAttributes().put("chatRoomId", chatRoomId);
-        return chatMessage;
+        // WebSocket 세션에서 AuthUser 객체를 가져옴
+        AuthUser authUser = (AuthUser) headerAccessor.getSessionAttributes().get("authUser");
+
+        return chatMessageService.sendMessage(chatRoomId, chatMessage, authUser);
     }
 
     /**
