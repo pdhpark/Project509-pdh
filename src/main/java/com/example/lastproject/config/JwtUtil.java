@@ -8,7 +8,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -17,7 +16,6 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
-@Slf4j(topic = "JwtUtil")
 @Component
 public class JwtUtil {
 
@@ -26,8 +24,8 @@ public class JwtUtil {
     JWT 를 안전하게 생성하고, 이를 사용하여 클라이언트와 서버 간의 인증을 처리
      */
 
-    private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
+    private static final String BEARER_PREFIX = "Bearer "; // 접두사 - Bearer ~
+    private static final long TOKEN_TIME = 60 * 60 * 1000L; // 토큰 유효시간 - 60분
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -72,7 +70,7 @@ public class JwtUtil {
 
     /**
      * Authorization 헤더에서 JWT 를 추출하는 메서드
-     * 이 메서드는 Authorization 헤더에서 Bearer 접두사를 제거하고 JWT 를 반환
+     * Authorization 헤더에서 Bearer 접두사를 제거하고 JWT 를 반환
      * Bearer 접두사가 없거나 값이 비어있으면 CustomException 이 발생
      *
      * @param tokenValue Authorization 헤더의 값
@@ -102,4 +100,5 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 }

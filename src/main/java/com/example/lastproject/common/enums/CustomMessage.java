@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum CustomMessage {
 
     // User Success
-    SIGNUP_SUCCESS(HttpStatus.OK, "님의 가입이 완료되었습니다."),
+    SIGNUP_SUCCESS(HttpStatus.OK, "가입이 완료되었습니다."),
     SIGNIN_SUCCESS(HttpStatus.OK, "로그인이 완료되었습니다."),
     WITHDRAWAL_SUCCESS(HttpStatus.OK, "님의 탈퇴가 완료되었습니다."),
     USER_FOUND(HttpStatus.OK, "님이 조회되었습니다."),

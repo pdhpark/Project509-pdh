@@ -21,10 +21,10 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository{
 
         List<ItemResponse> results = q
                 .select(
-                        new QItemResponse(item.id, item.category)
+                        new QItemResponse(item.id, item.category, item.productName)
                 )
                 .from(item)
-                .where(item.category.contains(keyword))
+                .where(item.category.contains(keyword).or(item.productName.contains(keyword)))
                 .fetch();
 
         return results;
