@@ -58,8 +58,14 @@ public class NotificationServiceImplTest {
     public void setUp() {
         user = new User(1L, "test@example.com", "password", "Tester", "Address", UserRole.ROLE_ADMIN, null, null);
         authUser = new AuthUser(1L, "test@example.com", UserRole.ROLE_ADMIN);
-        notification = new Notification(1L, null, user, "Test notification", "http://example.com", false);
-    }
+        notification = Notification.builder()
+                .id(1L)
+                .notificationType(null) // 필요한 경우 알맞은 타입으로 설정하세요.
+                .receiver(user)
+                .content("Test notification")
+                .url("http://example.com")
+                .isRead(false)
+                .build();    }
 
     private User createUser() {
         return new User(
@@ -75,14 +81,14 @@ public class NotificationServiceImplTest {
     }
 
     private Notification createNotification(User receiver) {
-        return new Notification(
-                1L,
-                NotificationType.PARTY_CREATE,
-                receiver,
-                "알림 내용",
-                "http://example.com",
-                false
-        );
+        return Notification.builder()
+                .id(1L)
+                .notificationType(NotificationType.PARTY_CREATE)
+                .receiver(receiver)
+                .content("알림 내용")
+                .url("http://example.com")
+                .isRead(false)
+                .build();
     }
 
     @Test
@@ -137,17 +143,17 @@ public class NotificationServiceImplTest {
     @Test
     public void 알림이_정상적으로_생성된다() {
         // given
-        User receiver = createUser();
+        User receiver = user;
 
         // when
-        Notification notification = new Notification(
-                null,
-                NotificationType.PARTY_CREATE,
-                receiver,
-                "알림 내용",
-                "http://example.com",
-                false
-        );
+        notification = Notification.builder()
+                .id(1L)
+                .notificationType(NotificationType.PARTY_CREATE) // 필요한 경우 알맞은 타입으로 설정하세요.
+                .receiver(receiver)
+                .content("알림 내용")
+                .url("http://example.com")
+                .isRead(false)
+                .build();
 
         // then
         assertNotNull(notification);
