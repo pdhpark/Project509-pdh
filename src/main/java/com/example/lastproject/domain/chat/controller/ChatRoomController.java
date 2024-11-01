@@ -3,6 +3,7 @@ package com.example.lastproject.domain.chat.controller;
 import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.chat.service.ChatRoomService;
+import com.example.lastproject.domain.chat.service.ChatRoomServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
