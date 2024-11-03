@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         //cors정책과 충돌하지 않기 위해 patterns로 수정
         //JWT인증을 위해 Interceptor 추가
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").addInterceptors(jwtHandshakeInterceptor).withSockJS();
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("http://localhost:8080").addInterceptors(jwtHandshakeInterceptor).withSockJS();
     }
 
     /**

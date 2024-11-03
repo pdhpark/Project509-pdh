@@ -6,6 +6,7 @@ import com.example.lastproject.domain.notification.service.NotificationService;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -21,10 +22,9 @@ public class NotificationAop {
 
     private final NotificationService notificationService;
 
-    // 파티 생성 알림 AOP 메서드
     @AfterReturning(
             pointcut = "@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
-                    "execution(com.example.lastproject.domain.party.dto.response.PartyResponse *(..))",
+                    "execution(* com.example.lastproject.domain.party.service.PartyService.createParty(..))",
             returning = "result")
     public void afterPartyCreation(Object result) {
         // 반환된 result 객체를 PartyResponse 타입으로 캐스팅
@@ -36,29 +36,29 @@ public class NotificationAop {
         // 알림 전송 로직
         if (authUser != null) {
             // Party 정보를 PartyResponse에서 가져와 알림 전송
-            notificationService.notifyUsersAboutPartyCreation(authUser, partyResponse);
-            log.info("Party 생성 알림 전송 완료: {}", partyResponse);
+            String itemName = partyResponse.getCategory().toString();
+
+            // notifyUsersAboutPartyCreation 메서드 호출 시 marketId 제거
+            notificationService.notifyUsersAboutPartyCreation(authUser, itemName, partyResponse.getId());
+            log.info("Party 생성 알림 전송 완료: {}", result);
         } else {
             log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
         }
     }
 
     // 파티 취소 알림 AOP 메서드
-//    @AfterReturning(
-//            pointcut = "@annotation(com.example.lastproject.common.annotation.LogisticsNotify)", returning = "result")
-//    public void afterPartyCancellation(Object result) {
-//        // 파라미터에서 마켓 정보를 가져온다 (필요에 따라 조정)
-//        Market market = (Market) result; // 메서드의 첫 번째 파라미터가 Market이라 가정
-//
-//        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        if (authUser != null) {
-//            notificationService.notifyUsersAboutPartyCancellation(authUser, market);
-//            log.info("파티 취소 알림 전송 완료: 마켓 이름 - {}", market.getMarketName());
-//        } else {
-//            log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
-//        }
-//    }
+    @After("@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
+            "execution(* com.example.lastproject.domain.party.service.PartyService.cancelParty(..))")
+    public void afterPartyCancellation() {
+        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (authUser != null) {
+            notificationService.notifyUsersAboutPartyCancellation(authUser);
+            log.info("Party 취소 알림 전송 완료");
+        } else {
+            log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
+        }
+    }
 
     // 채팅방 생성 알림 AOP 메서드
     @AfterReturning(
