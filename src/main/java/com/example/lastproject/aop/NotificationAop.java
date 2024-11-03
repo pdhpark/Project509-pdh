@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,8 @@ public class NotificationAop {
         PartyResponse partyResponse = (PartyResponse) result;
 
         // SecurityContextHolder에서 AuthUser 가져오기
-        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (authentication != null) ? (AuthUser) authentication.getPrincipal() : null;
 
         // 알림 전송 로직
         if (authUser != null) {
@@ -50,7 +52,8 @@ public class NotificationAop {
     @After("@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
             "execution(* com.example.lastproject.domain.party.service.PartyService.cancelParty(..))")
     public void afterPartyCancellation() {
-        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (authentication != null) ? (AuthUser) authentication.getPrincipal() : null;
 
         if (authUser != null) {
             notificationService.notifyUsersAboutPartyCancellation(authUser);
@@ -69,8 +72,8 @@ public class NotificationAop {
         // 반환된 result 객체를 PartyResponse 타입으로 캐스팅
         ChatRoomResponse chatRoomResponse = (ChatRoomResponse) result;
 
-        // SecurityContextHolder에서 AuthUser 가져오기
-        AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (authentication != null) ? (AuthUser) authentication.getPrincipal() : null;
 
         // 알림 전송 로직
         if (authUser != null) {

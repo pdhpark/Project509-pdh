@@ -19,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import java.util.Collections;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,8 +44,8 @@ public class NotificationServiceImplTest {
     @Mock
     private SseEmitter emitter; // SseEmitter를 Mock으로 설정
 
-    @Value("${client.basic-url}")
-    private String clientBasicUrl;
+    private String clientBasicUrl = "http://localhost:8080"; // 하드코딩된 값 사용
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
     private AuthUser authUser;
     private User user;
@@ -54,10 +54,11 @@ public class NotificationServiceImplTest {
     String eventId = "eventId";
     Object data = "test data";
 
+
     @BeforeEach
     public void setUp() {
-        user = new User(1L, "test@example.com", "password", "Tester", "Address", UserRole.ROLE_ADMIN, null, null);
         authUser = new AuthUser(1L, "test@example.com", UserRole.ROLE_ADMIN);
+        user = new User(1L, "test@example.com", "password", "Tester", "Address", UserRole.ROLE_ADMIN, null, null);
         notification = Notification.builder()
                 .id(1L)
                 .notificationType(null) // 필요한 경우 알맞은 타입으로 설정하세요.
@@ -65,7 +66,8 @@ public class NotificationServiceImplTest {
                 .content("Test notification")
                 .url("http://example.com")
                 .isRead(false)
-                .build();    }
+                .build();
+    }
 
     private User createUser() {
         return new User(
@@ -92,12 +94,58 @@ public class NotificationServiceImplTest {
     }
 
     @Test
-    public void test클라이언트에전송_입출력예외발생() throws IOException {
-        // Given
-        String emitterId = "emitterId";
-        String eventId = "eventId";
-        Object data = "test data";
+    public void testSendToClient_Success() throws Exception {
+        // when: 정상적으로 send 메서드 호출
+        notificationService.sendToClient(emitter, emitterId, eventId, data);
 
+        // then: send 메서드가 호출되었는지 검증
+        verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
+    }
+
+    @Test
+    public void testSendToClient_IOException() throws Exception {
+
+        // IOException을 발생시키도록 emitter를 모킹
+        doThrow(new IOException("SSE 연결 오류입니다.")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
+
+        // when & then: CustomException이 발생하는지 확인
+        assertThrows(CustomException.class, () -> notificationService.sendToClient(emitter, emitterId, eventId, data));
+
+        // emitterRepository.deleteById가 호출되었는지 검증
+        verify(emitterRepository).deleteById(emitterId);
+    }
+
+    @Test
+    public void testReadNotification_NotificationNotFound() {
+        // given
+        Long notificationId = 1L;
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            notificationService.readNotification(notificationId, authUser);
+        });
+
+        assertEquals(ErrorCode.NOT_FOUND_NOTIFICATION, exception.getErrorCode());
+        verify(notificationRepository).findById(notificationId);
+    }
+
+    @Test
+    public void testReadNotification_NoAccess() {
+        // given
+        Long notificationId = 1L;
+
+        // when & then
+        assertThrows(CustomException.class, () -> {
+            notificationService.readNotification(notificationId, authUser);
+        });
+
+        // Verify the access check method here if applicable
+        verify(notificationRepository).findById(notificationId);
+    }
+
+    @Test
+    public void test클라이언트에전송_입출력예외발생() throws IOException {
         // When
         notificationService.sendToClient(emitter, emitterId, eventId, data);
 
@@ -118,6 +166,8 @@ public class NotificationServiceImplTest {
         // Mockito는 빌더에 대한 직접 필드 접근을 허용하지 않으므로, 이렇게 할 수 없습니다.
         // 대신, 통합 테스트를 위해 코드의 실제 흐름에 의존해야 합니다.
     }
+
+
 
     @Test
     public void 알림이_정상적으로_전송된다() {
@@ -269,4 +319,5 @@ public class NotificationServiceImplTest {
         assertEquals(ErrorCode.NOT_FOUND_NOTIFICATION, exception.getErrorCode());
         verify(notificationRepository, times(1)).findById(notificationId);
     }
+
 }
