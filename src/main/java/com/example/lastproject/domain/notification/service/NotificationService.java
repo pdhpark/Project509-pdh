@@ -1,11 +1,10 @@
 package com.example.lastproject.domain.notification.service;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.entity.Notification;
-import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public interface NotificationService {

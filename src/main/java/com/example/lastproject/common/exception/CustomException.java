@@ -1,4 +1,4 @@
-package com.example.lastproject.common;
+package com.example.lastproject.common.exception;
 
 import com.example.lastproject.common.enums.ErrorCode;
 import lombok.Getter;

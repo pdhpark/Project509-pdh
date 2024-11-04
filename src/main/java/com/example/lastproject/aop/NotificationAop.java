@@ -1,6 +1,6 @@
 package com.example.lastproject.aop;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.notification.service.NotificationService;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;
