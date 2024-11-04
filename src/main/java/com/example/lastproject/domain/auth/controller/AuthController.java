@@ -5,7 +5,7 @@ import com.example.lastproject.domain.auth.dto.request.SignupRequest;
 import com.example.lastproject.domain.auth.dto.response.SigninResponse;
 import com.example.lastproject.domain.auth.dto.response.SignupResponse;
 import com.example.lastproject.domain.auth.dto.response.WithdrawalResponse;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

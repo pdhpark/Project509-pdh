@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.chat.controller;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatMessageRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import java.util.Objects;
+
 import java.util.Optional;
 
 /**
