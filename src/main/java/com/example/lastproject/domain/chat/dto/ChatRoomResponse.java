@@ -2,11 +2,13 @@ package com.example.lastproject.domain.chat.dto;
 
 import com.example.lastproject.domain.chat.entity.ChatRoom;
 import com.example.lastproject.domain.chat.enums.ChatRoomStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
+@AllArgsConstructor
 public class ChatRoomResponse {
 
     private Long id;
