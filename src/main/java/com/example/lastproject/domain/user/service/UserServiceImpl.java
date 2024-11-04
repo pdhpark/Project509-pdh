@@ -1,9 +1,9 @@
 package com.example.lastproject.domain.user.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.CustomMessage;
 import com.example.lastproject.common.enums.ErrorCode;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.penalty.entity.Penalty;
 import com.example.lastproject.domain.penalty.enums.PenaltyStatus;
 import com.example.lastproject.domain.penalty.repository.PenaltyRepository;
@@ -43,11 +43,7 @@ public class UserServiceImpl implements UserService {
         int penaltyCount = penalties.size();
 
         // 페널티 횟수가 3개 이상이면 유령 등급, 2개 이하이면 별 등급
-        if (penaltyCount >= 3) {
-            emoji = "👻"; // 유령 등급
-        } else {
-            emoji = "⭐"; // 별 등급
-        }
+        emoji = (penaltyCount >= 3) ? "👻" : "⭐";
 
         return emoji + nickname;
 

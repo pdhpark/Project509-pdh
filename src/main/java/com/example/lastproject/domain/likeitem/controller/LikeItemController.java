@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.likeitem.controller;
 
 import com.example.lastproject.common.enums.CustomMessage;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.likeitem.dto.response.LikeItemResponse;
 import com.example.lastproject.domain.likeitem.service.LikeItemService;
 import lombok.RequiredArgsConstructor;

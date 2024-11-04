@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.market.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.market.dto.request.MarketRequestDto;
 import com.example.lastproject.domain.market.entity.Market;
 import com.example.lastproject.domain.market.repository.MarketRepository;

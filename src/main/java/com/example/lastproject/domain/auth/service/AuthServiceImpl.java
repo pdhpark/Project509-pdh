@@ -1,13 +1,13 @@
 package com.example.lastproject.domain.auth.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.config.JwtUtil;
 import com.example.lastproject.domain.auth.dto.request.SigninRequest;
 import com.example.lastproject.domain.auth.dto.request.SignupRequest;
 import com.example.lastproject.domain.auth.dto.response.SignupResponse;
 import com.example.lastproject.domain.auth.dto.response.WithdrawalResponse;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.user.entity.User;
 import com.example.lastproject.domain.user.enums.UserRole;
 import com.example.lastproject.domain.user.enums.UserStatus;
@@ -40,9 +40,21 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException(ErrorCode.EXIST_EMAIL);
         }
 
+        if (userRepository.existsByNickname(signupRequest.getNickname())) {
+            throw new CustomException(ErrorCode.EXIST_NICKNAME);
+        }
+
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
 
+        if (!encodedPassword.equals(signupRequest.getPassword())) {
+            throw new CustomException(ErrorCode.ENCODING_FAILED);
+        }
+
         UserRole userRole = UserRole.of(signupRequest.getUserRole());
+
+        if (userRole == UserRole.ROLE_USER || userRole == UserRole.ROLE_ADMIN) {
+            throw new CustomException(ErrorCode.USER_ROLE_NOT_FOUND);
+        }
 
         User newUser = new User(
                 signupRequest.getEmail(),
@@ -67,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
     public String signin(SigninRequest signinRequest) {
 
         User user = userRepository.findByEmail(signinRequest.getEmail()).orElseThrow(
-                () -> new CustomException(ErrorCode.SIGNIN_ERROR)
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401을 반환합니다.

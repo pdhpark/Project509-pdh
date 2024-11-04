@@ -1,6 +1,6 @@
 package com.example.lastproject.config;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,11 +12,14 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.net.URI;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Queue;
 
 /**
  * BatchConfig 설정에 들어가는 클래스로
@@ -38,83 +41,87 @@ public class ApiDataReader implements ItemStreamReader<String> {
     @Value("${API_URL:}")
     private String apiUrl;
 
-    private int startIndex = 1;
-    private int endIndex = 1000;
-    private int totalPage;
-    private final RestTemplate restTemplate;
+    private Queue<String> jsonQueue = new LinkedList<>();
     private final ObjectMapper objectMapper;
+    private final WebClient webClient;
 
     // 매 실행시 요청 파라미터 초기화
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
-        startIndex = 1; // 초기값 설정
-        endIndex = 1000; // 초기값 설정
-        totalPage = 0; // 총 페이지 수 초기화
-    }
 
-    @Override
-    public String read() throws JsonProcessingException {
+        int totalPage = getTotalPage(); // 총 페이지 수 설정
+        int pageSize = 1000; // 페이지 범위 사이즈
 
-        // 마지막 페이지에 요청 종료
-        if (totalPage < startIndex && startIndex != 1) {
-            return null;
-        }
-
-        // api 요청
-        String jsonData = itemOpenApiRequest(startIndex, endIndex);
-
-        // 처음 실행시에만 총 페이지 계산
-        if (startIndex == 1) {
-            JsonNode nodeTemp = objectMapper.readTree(jsonData);
-            // 총 페이지수 계산
-            totalPage = nodeTemp.path(apiUrl).path("totalCnt").asInt();
-        }
-
-        // 다음 요청페이지 파라미터값 설정
-        startIndex = startIndex + 1000;
-        endIndex = endIndex + 1000;
-
-        return jsonData;
-    }
-
-    private String itemOpenApiRequest(int startIndex, int endIndex) {
-
-        // api 키가 주입되었을때만 실행
+        // api 설정이 주입되지않으면 예외반환
         if (!apiKey.isBlank() && !apiPort.isBlank() && !apiUrl.isBlank()) {
+            /**
+             * Flux.range(0, (totalPage + pageSize - 1) / pageSize)
+             * Flux 는 Reactor 함수로 매개 변수인 0 과 [(totalPage + pageSize - 1) / pageSize] 사이의 범위의 스트림을 생성
+             * 예) Flux.range(1,5) 의 경우 1~5 범위의 스트림이 생성됨
+             * 아래 코드의 경우 0부터 페이지수의 스트림이 생성되어 각 생성된 페이지 범위의 요청을 비동기방식으로 요청함
+             */
+            Flux<String> jsonData = Flux.range(0, (totalPage + pageSize - 1) / pageSize)
+                    .flatMap(page -> {
+                        int startIndex = page * pageSize + 1;
+                        int endIndex = startIndex + pageSize - 1;
+
+                        // 페이지 범위만큼 api 요청
+                        return webClient.get()
+                                .uri(uriBuilder -> uriBuilder
+                                        .path("/" + startIndex)
+                                        .path("/" + endIndex)
+                                        .build())
+                                .retrieve()
+                                .bodyToMono(String.class);
+                    });
+            // 받아온 데이터가 없을경우 예외반환
             try {
-                // 포트 설정
-                StringBuilder urlBuilder = new StringBuilder(apiPort);
-                // api 인증키
-                urlBuilder.append("/" + apiKey);
-                // 데이터 응답 형태
-                urlBuilder.append("/" + "json");
-                // api URL
-                urlBuilder.append("/" + apiUrl);
-                // 요청 데이터 인덱스 시작 위치
-                urlBuilder.append("/" + startIndex);
-                // 요청 데이터 인덱스 종료 위치
-                urlBuilder.append("/" + endIndex);
-                // 설정 완료된 주소값 문자열 변환
-                String url = urlBuilder.toString();
-
-                // url 문자열 uri 변환
-                URI uri = UriComponentsBuilder.fromUriString(url).encode().build().toUri();
-                log.info("uri = " + uri);
-
-                // 응답값을 제이슨데이터로 받기
-                log.info("API 요청 시작");
-                String jsonData = restTemplate.getForObject(uri, String.class);
-
-                // Json 데이터 반환
-                return jsonData;
-            } catch (RestClientException e) {
+                jsonQueue = new LinkedList<>(Objects.requireNonNull(jsonData.collectList().block()));
+            } catch (NullPointerException e) {
                 throw new CustomException(ErrorCode.API_CONNECTION_ERROR);
-            } finally {
-                log.info("API 요청 종료");
             }
         } else {
             throw new CustomException(ErrorCode.API_CONFIGURATION_NOT_FOUND);
         }
+    }
+
+    /**
+     * 응답데이터를 프로세스 영역에 전달
+     *
+     * @return Json 응답데이터
+     */
+    @Override
+    public String read() {
+
+        // 반환할 데이터가 없으면 중단
+        if (jsonQueue.isEmpty()) {
+            return null;
+        }
+
+        return jsonQueue.poll();
+    }
+
+    // 총페이지를 구하기 위해 첫페이지 api 요청
+    private int getTotalPage() {
+
+        int totalPage;
+
+        Mono<String> response = webClient.get()
+                .uri("/1/1")
+                .retrieve()
+                .bodyToMono(String.class);
+
+        // 읍답데이터
+        String jsonData = response.block();
+
+        // 응답데이터에서 총 페이지수 추출
+        try {
+            JsonNode nodeTemp = objectMapper.readTree(jsonData);
+            totalPage = nodeTemp.path(apiUrl).path("totalCnt").asInt();
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.API_PARSE_ERROR);
+        }
+        return totalPage;
     }
 
 }

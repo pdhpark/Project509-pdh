@@ -1,6 +1,6 @@
 package com.example.lastproject.aop;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.notification.service.NotificationService;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;
@@ -23,8 +23,7 @@ public class NotificationAop {
 
     private final NotificationService notificationService;
 
-    @AfterReturning(
-            pointcut = "@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
+    @AfterReturning(pointcut = "@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
                     "execution(* com.example.lastproject.domain.party.service.PartyService.createParty(..))",
             returning = "result")
     public void afterPartyCreation(Object result) {
@@ -53,8 +52,7 @@ public class NotificationAop {
     }
 
     // 채팅방 생성 알림 AOP 메서드
-//    @AfterReturning(
-//            pointcut = "@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
+//    @AfterReturning(pointcut = "@annotation(com.example.lastproject.common.annotation.LogisticsNotify) && " +
 //                    "execution(com.example.lastproject.domain.chat.dto.ChatRoomResponse *(..))",
 //            returning = "result")
 //    public void afterChatCreation(Object result) {

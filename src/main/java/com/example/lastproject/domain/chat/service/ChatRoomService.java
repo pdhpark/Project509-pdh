@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.chat.service;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 
 import java.util.List;

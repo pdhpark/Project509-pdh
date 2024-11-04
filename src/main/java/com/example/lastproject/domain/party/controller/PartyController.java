@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.party.controller;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.party.dto.request.PartyCreateRequest;
 import com.example.lastproject.domain.party.dto.request.PartyUpdateRequest;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;

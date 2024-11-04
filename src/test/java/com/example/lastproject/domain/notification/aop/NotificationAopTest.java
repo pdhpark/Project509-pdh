@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.notification.aop;
 
 import com.example.lastproject.aop.NotificationAop;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
 import com.example.lastproject.domain.notification.service.NotificationService;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;

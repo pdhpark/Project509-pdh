@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.user.entity;
 
 import com.example.lastproject.common.Timestamped;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.likeitem.entity.LikeItem;
 import com.example.lastproject.domain.user.dto.request.UserUpdateRequest;
 import com.example.lastproject.domain.user.enums.UserRole;
@@ -65,10 +65,19 @@ public class User extends Timestamped {
     }
 
     public static User fromAuthUser(AuthUser authUser) {
+
+        /*
+        해당 메서드가 파라미터 null 예외처리가 없는 이유
+        - 정적 팩토리 메서드는 일반적으로 null 반환을 하지 않도록 설계함
+         */
+
         return new User(
                 authUser.getUserId(),
                 authUser.getEmail(),
-                UserRole.of(authUser.getAuthorities().stream().findFirst().get().getAuthority())
+                UserRole.of(authUser.getAuthorities().stream()
+                        .findFirst()
+                        .get()
+                        .getAuthority())
         );
     }
 

@@ -1,9 +1,9 @@
 package com.example.lastproject.domain.notification.controller;
 
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.config.JwtAuthenticationToken;
 import com.example.lastproject.config.JwtUtil;
 import com.example.lastproject.config.SecurityConfig;
-import com.example.lastproject.domain.auth.entity.AuthUser;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.entity.Notification;
 import com.example.lastproject.domain.notification.service.NotificationService;

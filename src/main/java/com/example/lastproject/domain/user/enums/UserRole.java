@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.user.enums;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
