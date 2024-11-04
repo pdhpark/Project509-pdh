@@ -58,14 +58,14 @@ class NotificationAopTest {
         verify(notificationService).notifyUsersAboutPartyCancellation(eq(authUser));
     }
 
-    @Test
-    public void testAfterChatCreation() {
-        ChatRoomResponse chatRoomResponse = mock(ChatRoomResponse.class);
-
-        notificationAop.afterChatCreation(chatRoomResponse);
-
-        verify(notificationService).notifyUsersAboutPartyChatCreation(eq(authUser), eq(chatRoomResponse));
-    }
+//    @Test
+//    public void testAfterChatCreation() {
+//        ChatRoomResponse chatRoomResponse = mock(ChatRoomResponse.class);
+//
+//        notificationAop.afterChatCreation(chatRoomResponse);
+//
+//        verify(notificationService).notifyUsersAboutPartyChatCreation(eq(authUser), eq(chatRoomResponse));
+//    }
 
     @Test
     public void testAfterPartyCreationNoAuthUser() {
@@ -87,18 +87,18 @@ class NotificationAopTest {
         verify(notificationService, never()).notifyUsersAboutPartyCancellation(any());
     }
 
-    @Test
-    public void testAfterChatCreationNoAuthUser() {
-        SecurityContextHolder.clearContext();
-
-        // Given
-        ChatRoomResponse chatRoomResponse = mock(ChatRoomResponse.class);
-
-        // When
-        notificationAop.afterChatCreation(chatRoomResponse);
-
-        // Then
-        verify(notificationService, never()).notifyUsersAboutPartyChatCreation(any(), any());
-    }
+//    @Test
+//    public void testAfterChatCreationNoAuthUser() {
+//        SecurityContextHolder.clearContext();
+//
+//        // Given
+//        ChatRoomResponse chatRoomResponse = mock(ChatRoomResponse.class);
+//
+//        // When
+//        notificationAop.afterChatCreation(chatRoomResponse);
+//
+//        // Then
+//        verify(notificationService, never()).notifyUsersAboutPartyChatCreation(any(), any());
+//    }
 
 }

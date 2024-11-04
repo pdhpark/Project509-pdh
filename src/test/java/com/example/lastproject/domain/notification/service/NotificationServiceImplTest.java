@@ -3,7 +3,6 @@ package com.example.lastproject.domain.notification.service;
 import com.example.lastproject.common.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.auth.entity.AuthUser;
-import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.entity.Notification;
 import com.example.lastproject.domain.notification.entity.NotificationType;
@@ -11,19 +10,20 @@ import com.example.lastproject.domain.notification.repository.EmitterRepository;
 import com.example.lastproject.domain.notification.repository.NotificationRepository;
 import com.example.lastproject.domain.user.entity.User;
 import com.example.lastproject.domain.user.enums.UserRole;
-import com.example.lastproject.domain.user.enums.UserStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +32,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class NotificationServiceImplTest {
 
+    @Spy
     @InjectMocks
     private NotificationServiceImpl notificationService;
 
@@ -44,51 +45,29 @@ public class NotificationServiceImplTest {
     @Mock
     private SseEmitter emitter; // SseEmitter를 Mock으로 설정
 
-    private String clientBasicUrl = "http://localhost:8080"; // 하드코딩된 값 사용
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
-    private AuthUser authUser;
     private User user;
+    private AuthUser authUser;
     private Notification notification;
-    String emitterId = "emitterId";
     String eventId = "eventId";
     Object data = "test data";
-
+    String emitterId;
+    String clientBasicUrl;
 
     @BeforeEach
     public void setUp() {
-        authUser = new AuthUser(1L, "test@example.com", UserRole.ROLE_ADMIN);
-        user = new User(1L, "test@example.com", "password", "Tester", "Address", UserRole.ROLE_ADMIN, null, null);
+        clientBasicUrl = "http://localhost:8080";
+        authUser = new AuthUser(1L, "test@email.com", UserRole.ROLE_USER);
+        user = User.fromAuthUser(authUser);
+        emitterId = authUser.getUserId() + "_" + System.currentTimeMillis();
+
         notification = Notification.builder()
                 .id(1L)
                 .notificationType(null) // 필요한 경우 알맞은 타입으로 설정하세요.
                 .receiver(user)
                 .content("Test notification")
-                .url("http://example.com")
-                .isRead(false)
-                .build();
-    }
-
-    private User createUser() {
-        return new User(
-                1L,
-                "receiver@example.com",
-                "password",
-                "Receiver",
-                "Address",
-                UserRole.ROLE_ADMIN,
-                UserStatus.ACTIVATED,
-                new ArrayList<>()
-        );
-    }
-
-    private Notification createNotification(User receiver) {
-        return Notification.builder()
-                .id(1L)
-                .notificationType(NotificationType.PARTY_CREATE)
-                .receiver(receiver)
-                .content("알림 내용")
-                .url("http://example.com")
+                .url(null)
                 .isRead(false)
                 .build();
     }
@@ -171,20 +150,10 @@ public class NotificationServiceImplTest {
 
     @Test
     public void 알림이_정상적으로_전송된다() {
-        // given
-        User receiver = createUser();
-        NotificationRequest request = NotificationRequest.builder()
-                .url("http://example.com")
-                .content("알림 내용")
-                .notificationType(NotificationType.PARTY_CREATE)
-                .receiver(receiver)
-                .build();
-
-        Notification notification = createNotification(receiver);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
 
         // when
-        notificationService.send(authUser, request);
+        notificationService.send(authUser, notification);
 
         // then
         verify(notificationRepository, times(1)).save(any(Notification.class));
@@ -232,10 +201,6 @@ public class NotificationServiceImplTest {
 
     @Test
     public void 알림을_읽으면_isRead가_변경된다() {
-        // given
-        User receiver = createUser();
-        Notification notification = createNotification(receiver);
-
         // when
         notification.read();
 
@@ -245,17 +210,21 @@ public class NotificationServiceImplTest {
 
 
     @Test
-    public void 알림이_정상적으로_삭제된다() {
+    public void 알림ID가_없을_시_예외가_발생한다() {
         // given
-        User receiver = createUser();
-        Notification notification = createNotification(receiver);
-        when(notificationRepository.findById(anyLong())).thenReturn(Optional.of(notification));
+        when(notificationRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        // when
-        notificationService.deleteNotification(notification.getId(), authUser);
+        // when & then
+        assertThrows(CustomException.class,
+                () -> notificationService.deleteNotification(1L, authUser),
+                "예상된 예외가 발생하지 않았습니다.");
 
-        // then
-        verify(notificationRepository, times(1)).delete(notification);
+        // 예외 코드가 NOT_FOUND_NOTIFICATION인지 검증
+        try {
+            notificationService.deleteNotification(1L, authUser);
+        } catch (CustomException e) {
+            assertEquals(ErrorCode.NOT_FOUND_NOTIFICATION, e.getErrorCode(), "존재하지 않는 알림입니다.");
+        }
     }
 
     @Test
@@ -318,6 +287,65 @@ public class NotificationServiceImplTest {
 
         assertEquals(ErrorCode.NOT_FOUND_NOTIFICATION, exception.getErrorCode());
         verify(notificationRepository, times(1)).findById(notificationId);
+    }
+
+    @Test
+    public void subscribe_예외발생_테스트() {
+        // given
+        SseEmitter mockEmitter = new SseEmitter(DEFAULT_TIMEOUT);
+
+        // save 메서드가 예외를 던지도록 설정
+        doThrow(new RuntimeException("Save operation failed")).when(emitterRepository).save(anyString(), any(SseEmitter.class));
+
+        // when / then
+        assertThrows(RuntimeException.class, () -> {
+            notificationService.subscribe(authUser, "");
+        });
+
+        // verify: save 메서드가 호출되었는지 확인
+        verify(emitterRepository).save(anyString(), any(SseEmitter.class));
+    }
+
+
+    @Test
+    public void notifyUsersAboutPartyCreation_성공적으로_알림을_보내야_함() {
+        // given
+        String itemName = "테스트 품목";
+        Long partyId = 1L;
+
+        // when
+        notificationService.notifyUsersAboutPartyCreation(authUser, itemName, partyId);
+
+        // then
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+    }
+
+    @Test
+    public void notifyUsersAboutPartyCancellation_성공적으로_알림을_보내야_함() {
+        // when
+        notificationService.notifyUsersAboutPartyCancellation(authUser);
+
+        // then
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+    }
+
+    @Test
+    public void notifyUsersAboutPartyCreation_예외발생시_알림_저장_실패() {
+        // given
+        String itemName = "테스트 품목";
+        Long partyId = 1L;
+
+        // notificationRepository의 save 메서드가 예외를 던지도록 설정
+        doThrow(new RuntimeException("Notification save failed"))
+                .when(notificationRepository).save(any(Notification.class));
+
+        // when / then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            notificationService.notifyUsersAboutPartyCreation(authUser, itemName, partyId);
+        });
+
+        // 예외 메시지 검증
+        assertEquals("Notification save failed", exception.getMessage());
     }
 
 }
