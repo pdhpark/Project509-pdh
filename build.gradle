@@ -73,6 +73,9 @@ dependencies {
 	// H2 Database (테스트용)
 	testImplementation 'com.h2database:h2'
 
+	// WebClient
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 }
 
 tasks.named('test') {

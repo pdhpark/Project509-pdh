@@ -169,6 +169,7 @@ public class PartyService {
      * @throws CustomException PARTY_NOT_FOUND: "파티를 찾을 수 없습니다."
      */
     @Transactional
+    @LogisticsNotify
     public void cancelParty(Long partyId) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PARTY_NOT_FOUND));
