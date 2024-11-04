@@ -16,6 +16,7 @@ import com.example.lastproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class PartyMemberService {
         for (PartyMember member : partyMembers) {
             // 승인 대기 상태의 신청서만 추가
             if (member.getInviteStatus() == PartyMemberInviteStatus.PENDING) {
-                requests.add(new PartyMemberUpdateRequest(member.getInviteStatus()));
+                requests.add(new PartyMemberUpdateRequest(member.getUser().getId(), member.getInviteStatus()));
             }
         }
         return requests;

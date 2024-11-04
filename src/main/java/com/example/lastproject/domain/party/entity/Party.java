@@ -4,6 +4,7 @@ import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.party.enums.PartyStatus;
 import com.example.lastproject.domain.partymember.entity.PartyMember;
+import com.example.lastproject.domain.partymember.enums.PartyMemberInviteStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -55,7 +56,10 @@ public class Party extends Timestamped {
     @OneToMany(mappedBy = "party")
     private List<PartyMember> partyMembers;
 
-    public Party(String marketName, String marketAddress, Item item, int itemCount, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount) {
+    @Column(name = "creator_id", nullable = false)
+    private Long creatorId;
+
+    public Party(String marketName, String marketAddress, Item item, int itemCount, String itemUnit, LocalDateTime startTime, LocalDateTime endTime, int membersCount, Long creatorId) {
         this.marketName = marketName;
         this.marketAddress = marketAddress;
         this.item = item;
@@ -65,6 +69,7 @@ public class Party extends Timestamped {
         this.endTime = endTime;
         this.membersCount = membersCount;
         this.partyStatus = PartyStatus.OPEN;
+        this.creatorId = creatorId;
     }
 
     // 장보기 완료
@@ -75,6 +80,15 @@ public class Party extends Timestamped {
     // 파티 취소
     public void cancelParty() {
         this.partyStatus = PartyStatus.CANCELED;
+    }
+
+    // 파티 생성자 확인
+    public boolean isCreator(Long userId) {
+        return this.creatorId.equals(userId);
+    }
+
+    public PartyStatus getStatus() {
+        return this.partyStatus;
     }
 
     // 상세 정보 업데이트 및 시간 검증 로직 추가
