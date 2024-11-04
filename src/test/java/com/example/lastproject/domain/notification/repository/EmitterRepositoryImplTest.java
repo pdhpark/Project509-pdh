@@ -1,15 +1,12 @@
 package com.example.lastproject.domain.notification.repository;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,11 +21,6 @@ public class EmitterRepositoryImplTest {
     private String userId = "user1";
     private String emitterId = "user1-emitter1";
     private Object event = "testEvent";
-
-    @BeforeEach
-    public void setUp() {
-        // 초기화 작업이 필요한 경우 추가
-    }
 
     @Test
     public void Emitter를_정상적으로_저장한다() {

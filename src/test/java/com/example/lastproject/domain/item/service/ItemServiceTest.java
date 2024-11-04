@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.item.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.item.dto.response.ItemResponse;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
