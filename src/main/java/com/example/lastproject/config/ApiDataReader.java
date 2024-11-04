@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.*;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -53,6 +55,12 @@ public class ApiDataReader implements ItemStreamReader<String> {
     @Override
     public String read() throws JsonProcessingException {
 
+        // 마지막 페이지에 요청 종료
+        if (totalPage < startIndex && startIndex != 1) {
+            return null;
+        }
+
+        // api 요청
         String jsonData = itemOpenApiRequest(startIndex, endIndex);
 
         // 처음 실행시에만 총 페이지 계산
@@ -62,16 +70,10 @@ public class ApiDataReader implements ItemStreamReader<String> {
             totalPage = nodeTemp.path(apiUrl).path("totalCnt").asInt();
         }
 
-        // 마지막 페이지에 요청 종료 및 페이지 초기화
-        if (totalPage < startIndex) {
-            return null;
-        }
-
         // 다음 요청페이지 파라미터값 설정
         startIndex = startIndex + 1000;
-        if(startIndex > 1) {
-            endIndex = Math.min(endIndex + 1000, totalPage);
-        }
+        endIndex = endIndex + 1000;
+
         return jsonData;
     }
 
