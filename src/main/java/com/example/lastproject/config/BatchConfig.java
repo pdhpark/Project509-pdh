@@ -19,6 +19,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,7 +63,10 @@ public class BatchConfig {
     public Job itemApiJob() {
 
         return new JobBuilder("itemApiJob", jobRepository)
+                // api 요청후 데이터 파싱을 거쳐 DB에 저장해주는 Step
                 .start(itemApiStep())
+                // 중복 데이터 검증에 사용되는 캐시데이터 업데이트해주는 Step
+                .next(checkItemCacheEmpty())
                 .build();
     }
 
@@ -72,7 +76,7 @@ public class BatchConfig {
 
         return new StepBuilder("itemApiStep", jobRepository)
                 /**
-                 * String 리더기반환타입, List<Item> 프로세싱 반환타입
+                 * String 리더클래스 반환타입, List<Item> 프로세싱클래스 반환타입
                  * platformTransactionManager => 청크진행시 실패했을때 다시처리할수있도록 세팅
                  */
                 .<String, List<Item>>chunk(10, platformTransactionManager)
@@ -86,6 +90,24 @@ public class BatchConfig {
                 .taskExecutor(taskExecutor())
                 .build();
     }
+
+    /**
+     * 병렬처리로 부터 데이터 일관성을 지키기 위해 첫 업데이트의 경우 캐시 업데이트는 별도의 Step 으로 분리함
+     * @return itemApiStep 다음으로 실행되는 Step 클래스
+     */
+    @Bean
+    public Step checkItemCacheEmpty() {
+
+        return new StepBuilder("checkItemCache", jobRepository)
+                .tasklet((contribution, chunkContext) -> {
+                    if (itemCache.isEmpty()) {
+                        itemCache.addAll(itemRepository.findAllByProductNames());
+                    }
+                    return RepeatStatus.FINISHED;
+                }, platformTransactionManager)
+                .build();
+    }
+
 
     /**
      * ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸 데이터의 일관성을 보장해줌
@@ -129,14 +151,14 @@ public class BatchConfig {
                         // 품목명 추출
                         String productName = (String) jsonItem.get("STD_SPCIES_NM");
 
-                        // 캐시에서 중복 검사
+                        // 저장된 캐시 데이터로 중복 검사
                         if (itemCache.isEmpty()) {
                             Item item = new Item(category, productName);
                             items.add(item);
                         } else if (!itemCache.contains(productName)) {
                             Item item = new Item(category, productName);
                             items.add(item);
-                            itemCache.add(productName); // 캐시에 추가
+                            itemCache.add(productName); // 캐시 데이터에 저장
                         }
                     }
                     log.info("데이터 파싱 종료");
@@ -156,10 +178,6 @@ public class BatchConfig {
         return new ItemWriter<List<Item>>() {
             @Override
             public void write(Chunk<? extends List<Item>> chunk) throws Exception {
-                // 캐쉬에 데이터가 없을경우 업데이트 (첫번째 업데이트에는 캐쉬에 데이터가 없기때문에 write 메서드에서 검증로직 추가)
-                if (itemCache.isEmpty()) {
-                    itemCache.addAll(itemRepository.findAllByProductNames());
-                }
                 for (List<Item> items : chunk) {
                     itemRepository.saveAll(items);
                 }
@@ -181,9 +199,10 @@ public class BatchConfig {
         return executor;
     }
 
-    // 서버 시작시 기존 데이터베이스에서 데이터를 가져와 캐시에 저장
+    // 서버 시작시 기존 데이터베이스에서 데이터를 가져와 캐싱
     @PostConstruct
     public void loadDataToCache() {
-        itemRepository.findAll().forEach(item -> itemCache.add(item.getProductName()));
+        itemCache.addAll(itemRepository.findAllByProductNames());
     }
+
 }
