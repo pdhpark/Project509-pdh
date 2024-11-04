@@ -31,21 +31,15 @@ public class NotificationAop {
         // 반환된 result 객체를 PartyResponse 타입으로 캐스팅
         PartyResponse partyResponse = (PartyResponse) result;
 
-        // SecurityContextHolder에서 AuthUser 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuthUser authUser = (authentication != null) ? (AuthUser) authentication.getPrincipal() : null;
+        AuthUser authUser = (AuthUser)authentication.getPrincipal();
 
-        // 알림 전송 로직
-        if (authUser != null) {
-            // Party 정보를 PartyResponse에서 가져와 알림 전송
-            String itemName = partyResponse.getCategory().toString();
+        // Party 정보를 PartyResponse에서 가져와 알림 전송
+        String itemName = partyResponse.getCategory().toString();
 
-            // notifyUsersAboutPartyCreation 메서드 호출 시 marketId 제거
-            notificationService.notifyUsersAboutPartyCreation(authUser, itemName, partyResponse.getId());
-            log.info("Party 생성 알림 전송 완료: {}", result);
-        } else {
-            log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
-        }
+        // notifyUsersAboutPartyCreation 메서드 호출 시 marketId 제거
+        notificationService.notifyUsersAboutPartyCreation(authUser, itemName, partyResponse.getId());
+        log.info("Party 생성 알림 전송 완료: {}", result);
     }
 
     // 파티 취소 알림 AOP 메서드
@@ -53,14 +47,9 @@ public class NotificationAop {
             "execution(* com.example.lastproject.domain.party.service.PartyService.cancelParty(..))")
     public void afterPartyCancellation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuthUser authUser = (authentication != null) ? (AuthUser) authentication.getPrincipal() : null;
-
-        if (authUser != null) {
-            notificationService.notifyUsersAboutPartyCancellation(authUser);
-            log.info("Party 취소 알림 전송 완료");
-        } else {
-            log.warn("알림 전송 실패: 유효한 AuthUser 객체를 찾을 수 없습니다.");
-        }
+        AuthUser authUser = (AuthUser)authentication.getPrincipal();
+        notificationService.notifyUsersAboutPartyCancellation(authUser);
+        log.info("Party 취소 알림 전송 완료");
     }
 
     // 채팅방 생성 알림 AOP 메서드

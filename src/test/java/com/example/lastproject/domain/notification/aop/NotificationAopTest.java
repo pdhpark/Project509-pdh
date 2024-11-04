@@ -29,8 +29,6 @@ class NotificationAopTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        // Mock AuthUser 객체 생성
         authUser = mock(AuthUser.class);
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(authUser);
@@ -53,52 +51,34 @@ class NotificationAopTest {
 
     @Test
     public void testAfterPartyCancellation() {
+        // When
         notificationAop.afterPartyCancellation();
 
+        // Then
         verify(notificationService).notifyUsersAboutPartyCancellation(eq(authUser));
     }
 
-//    @Test
-//    public void testAfterChatCreation() {
-//        ChatRoomResponse chatRoomResponse = mock(ChatRoomResponse.class);
-//
-//        notificationAop.afterChatCreation(chatRoomResponse);
-//
-//        verify(notificationService).notifyUsersAboutPartyChatCreation(eq(authUser), eq(chatRoomResponse));
-//    }
-
     @Test
-    public void testAfterPartyCreationNoAuthUser() {
-        SecurityContextHolder.clearContext();
-
+    public void testAfterPartyCreationWithValidAuthUser() {
+        // Given
         PartyResponse partyResponse = mock(PartyResponse.class);
+        when(partyResponse.getCategory()).thenReturn("PartyCategory");
+        when(partyResponse.getId()).thenReturn(1L);
 
+        // When
         notificationAop.afterPartyCreation(partyResponse);
 
-        verify(notificationService, never()).notifyUsersAboutPartyCreation(any(), any(), any());
+        // Then
+        verify(notificationService, times(1)).notifyUsersAboutPartyCreation(eq(authUser), eq("PartyCategory"), eq(1L));
     }
 
     @Test
-    public void testAfterPartyCancellationNoAuthUser() {
-        SecurityContextHolder.clearContext();
-
+    public void testAfterPartyCancellationWithValidAuthUser() {
+        // When
         notificationAop.afterPartyCancellation();
 
-        verify(notificationService, never()).notifyUsersAboutPartyCancellation(any());
+        // Then
+        verify(notificationService, times(1)).notifyUsersAboutPartyCancellation(eq(authUser));
     }
-
-//    @Test
-//    public void testAfterChatCreationNoAuthUser() {
-//        SecurityContextHolder.clearContext();
-//
-//        // Given
-//        ChatRoomResponse chatRoomResponse = mock(ChatRoomResponse.class);
-//
-//        // When
-//        notificationAop.afterChatCreation(chatRoomResponse);
-//
-//        // Then
-//        verify(notificationService, never()).notifyUsersAboutPartyChatCreation(any(), any());
-//    }
 
 }

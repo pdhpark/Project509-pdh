@@ -45,7 +45,7 @@ public class NotificationServiceImplTest {
     @Mock
     private SseEmitter emitter; // SseEmitter를 Mock으로 설정
 
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final Long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
 
     private User user;
     private AuthUser authUser;

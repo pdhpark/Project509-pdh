@@ -31,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final EmitterRepository emitterRepository;
 
     // 연결 지속시간 한시간
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final Long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
 
     @Value("${client.basic-url}")
     private String clientBasicUrl;
@@ -113,7 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     @Override
     public Notification saveNotification(AuthUser authUser, Notification notification) {
-        User user = User.fromAuthUser(authUser);
+        User.fromAuthUser(authUser);
         notificationRepository.save(notification);
         return notification;
     }
@@ -130,8 +130,8 @@ public class NotificationServiceImpl implements NotificationService {
         String eventId = receiverId + "_" + System.currentTimeMillis();
 
         // 유저의 모든 SseEmitter 가져옴
-        Map<String, SseEmitter> emitters = emitterRepository
-                .findAllEmitterStartWithByUserId(receiverId);
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
+
         emitters.forEach(
                 (key, emitter) -> {
                     // 데이터 캐시 저장 (유실된 데이터 처리 위함)
