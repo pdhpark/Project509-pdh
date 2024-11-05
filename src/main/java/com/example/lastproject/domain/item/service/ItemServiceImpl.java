@@ -63,10 +63,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     // 재사용 잦은 코드 메서드 분리
-    public Item validateEntity(Long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(
+    public Item validateItem(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
-        return item;
     }
 
 }

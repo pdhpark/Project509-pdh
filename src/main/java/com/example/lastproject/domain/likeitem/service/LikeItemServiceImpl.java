@@ -39,7 +39,7 @@ public class LikeItemServiceImpl implements LikeItemService {
         }
 
         // 등록할 품목엔티티
-        Item item = itemService.validateEntity(itemId);
+        Item item = itemService.validateItem(itemId);
 
         LikeItem likeItem = new LikeItem(user, item);
         likeItemRepository.save(likeItem);
