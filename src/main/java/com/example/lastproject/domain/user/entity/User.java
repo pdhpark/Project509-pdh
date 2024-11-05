@@ -67,9 +67,9 @@ public class User extends Timestamped {
     public static User fromAuthUser(AuthUser authUser) {
 
         /*
-        해당 메서드가 파라미터 null 예외처리가 없는 이유
-        - 정적 팩토리 메서드는 일반적으로 null 반환을 하지 않도록 설계함
-         */
+        authUser 는 로그인이 완료되었을 때만 생기는 DTO, 애초에 null 일 수 없는 이유
+        -> 로그인 실패 처리가 될 것임.
+        */
 
         return new User(
                 authUser.getUserId(),

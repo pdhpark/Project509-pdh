@@ -64,13 +64,15 @@ public class UserServiceImpl implements UserService {
     /**
      * 사용자 조회
      *
-     * @param authUser 조회할 사용자
-     * @return response 객체 ( email, nickname, "_ 님이 조회되었습니다." )
+     * @param userId 조회할 사용자 id
+     * @return
      */
     @Override
-    public UserResponse getUser(AuthUser authUser) {
+    public UserResponse getUser(Long userId) {
 
-        User findUser = User.fromAuthUser(authUser);
+        User findUser = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
 
         if (findUser.getUserStatus() == (UserStatus.DELETED)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
