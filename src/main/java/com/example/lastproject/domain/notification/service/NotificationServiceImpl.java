@@ -1,19 +1,15 @@
 package com.example.lastproject.domain.notification.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.common.enums.ErrorCode;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.chat.dto.ChatRoomResponse;
-import com.example.lastproject.domain.market.entity.Market;
-import com.example.lastproject.domain.market.repository.MarketRepository;
-import com.example.lastproject.domain.notification.dto.request.NotificationRequest;
 import com.example.lastproject.domain.notification.dto.response.NotificationListResponse;
 import com.example.lastproject.domain.notification.dto.response.NotificationResponse;
 import com.example.lastproject.domain.notification.entity.Notification;
 import com.example.lastproject.domain.notification.entity.NotificationType;
 import com.example.lastproject.domain.notification.repository.EmitterRepository;
 import com.example.lastproject.domain.notification.repository.NotificationRepository;
-import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -32,14 +29,13 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final MarketRepository marketRepository;
     private final EmitterRepository emitterRepository;
 
     // 연결 지속시간 한시간
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final Long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
 
     @Value("${client.basic-url}")
-    private String clientBasicUrl;  // 환경 설정에서 URL을 가져와 사용
+    private String clientBasicUrl;
 
     /**
      * SSE 연결
@@ -102,31 +98,23 @@ public class NotificationServiceImpl implements NotificationService {
     /**
      * 알림을 저장하고, 저장된 알림을 클라이언트에게 전송합니다.
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param request 알림(content, type, url) 요청 정보
+     * @param
      */
     @Override
-    public void send(AuthUser authUser, NotificationRequest request) {
-        sendNotification(authUser, saveNotification(authUser, request));
+    public void send(AuthUser authUser, Notification notification) {
+        sendNotification(authUser, saveNotification(authUser, notification));
     }
 
     /**
      * 알림 저장
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param request 알림(content, type, url) 요청 정보
+     * @param
      * @return 새롭게 생성된 알림 정보(id, content, type, enum, url, isRead, createdAt)가 포함된 notification 객체
      */
     @Transactional
     @Override
-    public Notification saveNotification(AuthUser authUser, NotificationRequest request) {
-        User user = User.fromAuthUser(authUser);
-
-        Notification notification = Notification.builder()
-                .receiver(user)
-                .notificationType(request.getNotificationType())
-                .content(request.getContent())
-                .url(request.getUrl())
-                .isRead(false)
-                .build();
+    public Notification saveNotification(AuthUser authUser, Notification notification) {
+        User.fromAuthUser(authUser);
         notificationRepository.save(notification);
         return notification;
     }
@@ -141,9 +129,10 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendNotification(AuthUser authUser, Notification notification) {
         String receiverId = String.valueOf(authUser.getUserId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
+
         // 유저의 모든 SseEmitter 가져옴
-        Map<String, SseEmitter> emitters = emitterRepository
-                .findAllEmitterStartWithByUserId(receiverId);
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
+
         emitters.forEach(
                 (key, emitter) -> {
                     // 데이터 캐시 저장 (유실된 데이터 처리 위함)
@@ -155,53 +144,51 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /**
-     * 찜한 품목의 파티가 생성된 경우 알림을 보냅니다.
+     * 사용자가 찜한 품목에 대한 파티가 생성된 경우 해당 사용자에게 알림을 보냅니다.
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param partyResponse 생성된 파티 정보
+     * @param itemName 찜한 품목의 이름
+     * @param partyId 생성된 파티의 ID
      */
     @Transactional
     @Override
-    public void notifyUsersAboutPartyCreation(AuthUser authUser, PartyResponse partyResponse) {
+    public void notifyUsersAboutPartyCreation(AuthUser authUser, String itemName, Long partyId) {
         User receiver = User.fromAuthUser(authUser);
-        String content = partyResponse.getCategory() + "품목 파티가 생성되었습니다.";
+        String content = String.format("참가 신청한 '%s' 품목의 파티가 생성되었습니다.", itemName);
+        String notificationUrl = String.format("%s/parties/%d", clientBasicUrl, partyId); // URL 생성
 
-        String redirectUrl = clientBasicUrl + "/parties/" + partyResponse.getId();
-
-        NotificationRequest request = NotificationRequest.builder()
+        // Notification 엔티티 생성
+        Notification notification = Notification.builder()
                 .notificationType(NotificationType.PARTY_CREATE)
                 .content(content)
-                .url(redirectUrl)
+                .url(notificationUrl)
                 .receiver(receiver)
+                .isRead(false) // 기본값 설정
                 .build();
 
-        send(authUser, request);
+        send(authUser, notification);
     }
 
     /**
-     * 찜한 품목의 파티가 취소된 경우 알림을 보냅니다.
+     * 사용자가 찜한 품목의 파티가 취소된 경우 해당 사용자에게 알림을 보냅니다.
      * @param authUser 요청을 보낸 인증된 사용자 정보
-     * @param marketId 취소된 마켓의 고유 ID
      */
     @Transactional
     @Override
-    public void notifyUsersAboutPartyCancellation(AuthUser authUser, Long marketId) {
+    public void notifyUsersAboutPartyCancellation(AuthUser authUser) {
         User receiver = User.fromAuthUser(authUser);
-
-        Market market = marketRepository.findById(marketId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MARKET_NOT_FOUND));
-
-        String content = "참가 신청한 '"+ market.getMarketName() + " 점포' 파티가 취소되었습니다.";
-
+        String content = "참가 신청한 파티가 취소되었습니다.";
         String redirectUrl = clientBasicUrl + "/parties";
 
-        NotificationRequest request = NotificationRequest.builder()
-                .notificationType(NotificationType.PARTY_CREATE)
+        // Notification 엔티티 생성
+        Notification notification = Notification.builder()
+                .notificationType(NotificationType.PARTY_CANCEL)
                 .content(content)
                 .url(redirectUrl)
                 .receiver(receiver)
+                .isRead(false) // 기본값 설정
                 .build();
 
-        send(authUser, request);
+        send(authUser, notification);
     }
 
     /**
@@ -209,23 +196,24 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param chatRoomResponse 생성된 파티의 채팅창
      */
-    @Transactional
-    @Override
-    public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
-        User receiver = User.fromAuthUser(authUser);
-        String content = "참가 신청한 파티의 채팅방이 생성되었습니다.";
-
-        String redirectUrl = clientBasicUrl + "/chat/history/" + chatRoomResponse.getId();
-
-        NotificationRequest request = NotificationRequest.builder()
-                .notificationType(NotificationType.PARTY_CREATE)
-                .content(content)
-                .url(redirectUrl)
-                .receiver(receiver)
-                .build();
-
-        send(authUser, request);
-    }
+//    @Transactional
+//    @Override
+//    public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
+//        User receiver = User.fromAuthUser(authUser);
+//        String content = "참가 신청한 파티의 채팅창이 생성되었습니다.";
+//        String redirectUrl = clientBasicUrl + "/chat/history/" + chatRoomResponse.getId();
+//
+//        // Notification 엔티티 생성
+//        Notification notification = Notification.builder()
+//                .notificationType(NotificationType.CHAT_CREATE)
+//                .content(content)
+//                .url(redirectUrl)
+//                .receiver(receiver)
+//                .isRead(false) // 기본값 설정
+//                .build();
+//
+//        send(authUser, notification);
+//    }
 
     /**
      * 사용자의 알림 목록을 조회합니다.

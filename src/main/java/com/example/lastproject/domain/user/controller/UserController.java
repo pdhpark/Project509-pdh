@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.user.controller;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.user.dto.request.UserChangePasswordRequest;
 import com.example.lastproject.domain.user.dto.request.UserUpdateRequest;
 import com.example.lastproject.domain.user.dto.response.UserResponse;
@@ -18,13 +18,15 @@ public class UserController {
     private final UserService userService;
 
     /**
-     * 사용자 단건 조회
+     * 사용자 조회
      *
-     * @param userId 사용자 id
-     * @return 응답 객체 반환 ( email, nickname, successCode )
+     * @param userId 조회할 사용자 id
+     * @return 응답 객체
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable long userId) {
+    public ResponseEntity<UserResponse> getUser(
+            @PathVariable Long userId
+    ) {
 
         UserResponse response = userService.getUser(userId);
         return ResponseEntity.ok(response);
@@ -43,7 +45,7 @@ public class UserController {
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody UserChangePasswordRequest request) {
 
-        UserResponse response = userService.changePassword(authUser.getUserId(), request);
+        UserResponse response = userService.changePassword(authUser, request);
         return ResponseEntity.ok(response);
 
     }
@@ -61,7 +63,7 @@ public class UserController {
             @RequestBody UserUpdateRequest request
     ) {
 
-        UserResponse response = userService.updateUser(authUser.getUserId(), request);
+        UserResponse response = userService.updateUser(authUser, request);
         return ResponseEntity.ok(response);
 
     }

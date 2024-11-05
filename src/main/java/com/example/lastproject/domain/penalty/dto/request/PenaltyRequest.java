@@ -9,4 +9,7 @@ public class PenaltyRequest {
 
     private List<Long> userIds;
 
+    public PenaltyRequest(List<Long> userIds) {
+    }
+
 }

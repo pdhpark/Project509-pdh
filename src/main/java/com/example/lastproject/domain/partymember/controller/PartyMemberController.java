@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.partymember.controller;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.partymember.dto.request.PartyMemberUpdateRequest;
 import com.example.lastproject.domain.partymember.service.PartyMemberService;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,10 @@
 package com.example.lastproject.config;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -16,9 +17,9 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
+import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Job => 전체 배치처리 과정을 추상화한 클래스 : 배치의 실행 단위로 전체 배치 작업을 정의
@@ -52,13 +55,18 @@ public class BatchConfig {
     private final ItemRepository itemRepository;
     private final ApiDataReader apiDataReader;
     private final PlatformTransactionManager platformTransactionManager;
+    // 중복 데이터 검증시 사용되는 캐시 데이터
+    private final Set<String> itemCache = new HashSet<>();
 
     // Job 설정
     @Bean
     public Job itemApiJob() {
 
         return new JobBuilder("itemApiJob", jobRepository)
+                // api 요청후 데이터 파싱을 거쳐 DB에 저장해주는 Step
                 .start(itemApiStep())
+                // 중복 데이터 검증에 사용되는 캐시데이터 업데이트해주는 Step
+                .next(checkItemCacheEmpty())
                 .build();
     }
 
@@ -68,12 +76,12 @@ public class BatchConfig {
 
         return new StepBuilder("itemApiStep", jobRepository)
                 /**
-                 * String 리더기반환타입, List<Item> 프로세싱 반환타입
+                 * String 리더클래스 반환타입, List<Item> 프로세싱클래스 반환타입
                  * platformTransactionManager => 청크진행시 실패했을때 다시처리할수있도록 세팅
                  */
                 .<String, List<Item>>chunk(10, platformTransactionManager)
                 // api 요청 리더 클래스 주입
-                .reader(apiDataReader)
+                .reader(synchronizedApiDataReader())
                 // 응답 데이터 엔티티 파싱 클래스 주입
                 .processor(jsonToEntityProcessor())
                 // 엔티티 저장 라이터 클래스 주입
@@ -81,6 +89,37 @@ public class BatchConfig {
                 // 병렬처리 설정 주입
                 .taskExecutor(taskExecutor())
                 .build();
+    }
+
+    /**
+     * 병렬처리로 부터 데이터 일관성을 지키기 위해 첫 업데이트의 경우 캐시 업데이트는 별도의 Step 으로 분리함
+     * @return itemApiStep 다음으로 실행되는 Step 클래스
+     */
+    @Bean
+    public Step checkItemCacheEmpty() {
+
+        return new StepBuilder("checkItemCache", jobRepository)
+                .tasklet((contribution, chunkContext) -> {
+                    if (itemCache.isEmpty()) {
+                        itemCache.addAll(itemRepository.findAllByProductNames());
+                    }
+                    return RepeatStatus.FINISHED;
+                }, platformTransactionManager)
+                .build();
+    }
+
+
+    /**
+     * ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸 데이터의 일관성을 보장해줌
+     * ApiDataReader 클래스의 read() 메서드에 하나의 쓰레드만 접근할 수 있게 해주는 빈 클래스
+     *
+     * @return ApiDataReader 클래스를 SynchronizedItemStreamReader 클래스로 감싸서 반환
+     */
+    @Bean
+    public ItemReader<String> synchronizedApiDataReader() {
+        SynchronizedItemStreamReader<String> synchronizedItemReader = new SynchronizedItemStreamReader<>();
+        synchronizedItemReader.setDelegate((ItemStreamReader<String>) apiDataReader);
+        return synchronizedItemReader;
     }
 
     // Json 응답데이터를 엔티티로 파싱하는 Processor 클래스
@@ -107,13 +146,20 @@ public class BatchConfig {
                     // 제이슨리스트에서 Item 엔티티객체로 파싱
                     for (Object row : jsonRowList) {
                         JSONObject jsonItem = (JSONObject) row;
-                        Item item = new Item(
-                                // 품목분류명 추출후 아이템 category 매핑
-                                (String) jsonItem.get("STD_PRDLST_NM"),
-                                // 품목명 추출후 아이템 productName 매핑
-                                (String) jsonItem.get("STD_SPCIES_NM")
-                        );
-                        items.add(item);
+                        // 품목분류명 추출
+                        String category = (String) jsonItem.get("STD_PRDLST_NM");
+                        // 품목명 추출
+                        String productName = (String) jsonItem.get("STD_SPCIES_NM");
+
+                        // 저장된 캐시 데이터로 중복 검사
+                        if (itemCache.isEmpty()) {
+                            Item item = new Item(category, productName);
+                            items.add(item);
+                        } else if (!itemCache.contains(productName)) {
+                            Item item = new Item(category, productName);
+                            items.add(item);
+                            itemCache.add(productName); // 캐시 데이터에 저장
+                        }
                     }
                     log.info("데이터 파싱 종료");
 
@@ -153,5 +199,10 @@ public class BatchConfig {
         return executor;
     }
 
-}
+    // 서버 시작시 기존 데이터베이스에서 데이터를 가져와 캐싱
+    @PostConstruct
+    public void loadDataToCache() {
+        itemCache.addAll(itemRepository.findAllByProductNames());
+    }
 
+}

@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.user.enums;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public enum UserRole {
                 .filter(r -> r.name().equalsIgnoreCase(role))
                 .findFirst()
                 .orElseThrow(
-                        () -> new CustomException(ErrorCode.USERROLE_NOT_FOUND)
+                        () -> new CustomException(ErrorCode.USER_ROLE_NOT_FOUND)
                 );
     }
 

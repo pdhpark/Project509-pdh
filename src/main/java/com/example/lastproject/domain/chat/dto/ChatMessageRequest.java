@@ -23,4 +23,7 @@ public class ChatMessageRequest {
         this.sender = sender;
     }
 
+    public void changeContent(String content) {
+        this.content = content;
+    }
 }
