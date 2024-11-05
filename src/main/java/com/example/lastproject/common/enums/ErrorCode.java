@@ -49,7 +49,9 @@ public enum ErrorCode {
     INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "시작 시간은 종료 시간보다 이전이어야 합니다."),
     INVALID_MEMBERS_COUNT(HttpStatus.BAD_REQUEST, "최소 참가 인원은 1명 이상이어야 합니다."),
     INVALID_ITEM_COUNT(HttpStatus.BAD_REQUEST, "개수를 입력해야 합니다."),
-    NOT_PARTY_LEADER(HttpStatus.BAD_REQUEST, "파티장만 수정할 수 있습니다."),
+    NOT_PARTY_LEADER(HttpStatus.BAD_REQUEST, "이 작업은 파티장만 수행할 수 있습니다."),
+    INVALID_MARKET_UPDATE(HttpStatus.BAD_REQUEST, "마켓 이름과 주소는 수정할 수 없습니다."),
+    PARTY_NOT_DONE(HttpStatus.BAD_REQUEST, "장보기 완료가 되지 않았습니다."),
 
     // PartyMember ErrorCode
     PARTY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "파티 멤버를 찾을 수 없습니다."),

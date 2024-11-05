@@ -1,26 +1,31 @@
 package com.example.lastproject.domain.party.controller;
 
 import com.example.lastproject.common.dto.AuthUser;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.party.dto.request.PartyCreateRequest;
 import com.example.lastproject.domain.party.dto.request.PartyUpdateRequest;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.party.service.PartyService;
+import com.example.lastproject.domain.partymember.dto.request.PartyMemberUpdateRequest;
+import com.example.lastproject.domain.partymember.dto.response.PartyMemberResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/parties")
+@RequestMapping("/parties")
 public class PartyController {
 
     private final PartyService partyService;
 
     /**
-     *파티 생성 메소드
+     *파티장 : 파티 생성
      *
      * @param authUser 파티 생성 요청을 한 사용자(파티장)
      * @param partyCreateRequest 파티 생성 시 필요한 json body
@@ -37,18 +42,54 @@ public class PartyController {
     }
 
     /**
-     * 파티 조회 메소드
+     * 파티장: 내가 생성한 파티에 참가 신청한 유저 상태 변경
      *
-     * @return ResponseEntity<List<PartyResponse>> 활성화된 모든 파티 리스트와 HTTP 상태 코드 200 반환
+     * @param partyId       파티 ID
+     * @param authUser      현재 로그인한 파티장 (파티장 여부 검증)
+     * @param requestDto    상태를 변경할 파티 멤버 ID와 새로운 초대 상태를 포함한 DTO
+     * @return 상태 변경 결과
+     * @throws CustomException NOT_PARTY_LEADER: "이 작업은 파티장만 수행할 수 있습니다."
      */
-    @GetMapping
-    public ResponseEntity<List<PartyResponse>> getAllParties() {
-        List<PartyResponse> parties = partyService.getAllActiveParties();
-        return new ResponseEntity<>(parties, HttpStatus.OK);
+    @PatchMapping("/{partyId}/join-requests")
+    public ResponseEntity<Void> handleJoinRequest(
+            @PathVariable Long partyId,
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody PartyMemberUpdateRequest requestDto) {
+
+        partyService.handleJoinRequest(partyId, authUser, requestDto);
+        return ResponseEntity.noContent().build();
     }
 
     /**
-     * 파티 수정 메소드
+     * 파티장 : 장보기 완료
+     *
+     * @param partyId 완료할 파티의 ID
+     * @return ResponseEntity<Void> 빈 본문과 HTTP 상태 코드 200 반환
+     */
+    @PutMapping("/{partyId}/complete")
+    public ResponseEntity<Void> completeParty(
+            @PathVariable Long partyId) {
+        partyService.completeParty(partyId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 파티장 : 장보기 완료 후 참여한 멤버 목록 조회
+     *
+     * @param partyId  파티 ID
+     * @param authUser 현재 로그인한 파티장 (파티장 여부 검증)
+     * @return List<PartyMemberResponse> 참여 멤버 목록
+     */
+    @GetMapping("/{partyId}/members")
+    public ResponseEntity<List<PartyMemberResponse>> getMembersAfterPartyClosed(
+            @PathVariable Long partyId,
+            @AuthenticationPrincipal AuthUser authUser) {
+        List<PartyMemberResponse> members = partyService.getMembersAfterPartyClosed(partyId, authUser);
+        return ResponseEntity.ok(members);
+    }
+
+    /**
+     * 파티장 : 파티 수정
      *
      * @param partyId 수정할 파티의 ID
      * @param partyUpdateRequest 파티 수정에 필요한 json body
@@ -67,20 +108,7 @@ public class PartyController {
     }
 
     /**
-     * 파티 완료 메소드 (장보기 완료)
-     *
-     * @param partyId 완료할 파티의 ID
-     * @return ResponseEntity<Void> 빈 본문과 HTTP 상태 코드 200 반환
-     */
-    @PutMapping("/{partyId}/complete")
-    public ResponseEntity<Void> completeParty(
-            @PathVariable Long partyId) {
-        partyService.completeParty(partyId);
-        return ResponseEntity.ok().build();
-    }
-
-    /**
-     * 파티 취소 메소드 (파티 취소)
+     * 파티장 : 파티 취소
      *
      * @param partyId 취소할 파티의 ID
      * @return ResponseEntity<Void> 빈 본문과 HTTP 상태 코드 200 반환
@@ -90,6 +118,34 @@ public class PartyController {
             @PathVariable Long partyId) {
         partyService.cancelParty(partyId);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 파티원 : 본인이 참가 신청한 파티 목록 조회
+     *
+     * @param authUser 현재 로그인한 사용자
+     * @return 사용자가 신청한 파티 목록
+     */
+    @GetMapping("/my-parties")
+    public ResponseEntity<List<PartyResponse>> getPartiesUserApplied(
+            @AuthenticationPrincipal AuthUser authUser) {
+        List<PartyResponse> responses = partyService.getPartiesUserApplied(authUser);
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * 유저가 파티에 있는지 확인
+     *
+     * @param partyId 파티 ID
+     * @param authUser 인증된 사용자
+     * @return ResponseEntity<Boolean> 유저가 파티에 존재하는지 여부
+     */
+    @GetMapping("/{partyId}/is-member")
+    public ResponseEntity<Boolean> isUserInParty(
+            @PathVariable Long partyId,
+            @AuthenticationPrincipal AuthUser authUser) {
+        boolean isMember = partyService.isUserInParty(partyId, authUser);
+        return ResponseEntity.ok(isMember);
     }
 
 }

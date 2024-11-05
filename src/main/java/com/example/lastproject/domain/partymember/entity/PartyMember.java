@@ -1,6 +1,7 @@
 package com.example.lastproject.domain.partymember.entity;
 
 import com.example.lastproject.domain.party.entity.Party;
+import com.example.lastproject.domain.party.enums.PartyStatus;
 import com.example.lastproject.domain.partymember.enums.PartyMemberInviteStatus;
 import com.example.lastproject.domain.partymember.enums.PartyMemberRole;
 import com.example.lastproject.domain.user.entity.User;
@@ -36,6 +37,9 @@ public class PartyMember {
     @Column(nullable = false)
     private PartyMemberRole role;
 
+    @Enumerated(EnumType.STRING)
+    private PartyStatus status;
+
     // 파티원이 참가 신청을 누르면 기본값은 PENDING(보류) 상태
     public PartyMember(User user, Party party, PartyMemberRole role) {
         this.user = user;
@@ -50,11 +54,6 @@ public class PartyMember {
         this.party = party;
         this.role = role;
         this.inviteStatus = inviteStatus;
-    }
-
-    // 파티원 : 참가 신청
-    public void sendJoinRequest() {
-        // 상태는 기본값인 PENDING으로 유지
     }
 
     public PartyMember updateInviteStatus(PartyMemberInviteStatus newStatus) {
