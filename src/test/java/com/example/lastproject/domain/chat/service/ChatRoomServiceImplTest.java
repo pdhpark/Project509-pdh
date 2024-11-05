@@ -66,8 +66,10 @@ class ChatRoomServiceImplTest {
         user = User.fromAuthUser(authUser);
         item = new Item("category", "productName");
 
+        Long creatorId = 1L; // 실제 creatorId를 사용해야 합니다.
         party = new Party("marketName", "marketAddress", item, 1, "itemUnit",
-                LocalDateTime.of(2024,11,1,1,0), LocalDateTime.of(2024,11,2,1,0), 4);
+                LocalDateTime.of(2024, 11, 1, 1, 0), LocalDateTime.of(2024, 11, 2, 1, 0), 4, creatorId);
+
         ReflectionTestUtils.setField(party, "id", 1L);
         ReflectionTestUtils.setField(party, "partyStatus", PartyStatus.JOINED);
 

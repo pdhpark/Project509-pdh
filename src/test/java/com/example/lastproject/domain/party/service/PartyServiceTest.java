@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.party.service;
 
-import com.example.lastproject.common.CustomException;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
 import com.example.lastproject.domain.party.dto.request.PartyCreateRequest;
@@ -138,8 +138,8 @@ class PartyServiceTest {
     // 파티 완료 후 참여 멤버 조회 성공
     @Test
     void getMembersAfterPartyClosed_success() {
-        // 필요한 필드 초기화
-        item = new Item(/* Item 객체 초기화 */); // 적절한 아이템 초기화
+
+        item = new Item(/* Item 객체 초기화 */);
         party = new Party("이마트", "마켓 주소", item, 10, "kg", LocalDateTime.now(), LocalDateTime.now().plusHours(1), 3, user.getId());
         party.completeParty(); // 파티 상태를 DONE으로 설정
 
