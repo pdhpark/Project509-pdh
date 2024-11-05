@@ -18,6 +18,7 @@ import com.example.lastproject.domain.partymember.entity.PartyMember;
 import com.example.lastproject.domain.partymember.enums.PartyMemberInviteStatus;
 import com.example.lastproject.domain.partymember.enums.PartyMemberRole;
 import com.example.lastproject.domain.partymember.repository.PartyMemberRepository;
+import com.example.lastproject.domain.partymember.service.PartyMemberService;
 import com.example.lastproject.domain.user.entity.User;
 import com.example.lastproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class PartyService {
     private final ItemRepository itemRepository;
     private final PartyMemberRepository partyMemberRepository;
     private final UserRepository userRepository;
+
 
     /**
      * 파티장 : 파티 생성
@@ -106,47 +108,50 @@ public class PartyService {
     }
 
     /**
-     * 파티장: 내가 생성한 파티에 참가 신청한 유저 조회 및 상태 변경
+     * 파티장: 내가 생성한 파티에 참가 신청한 유저의 상태를 변경합니다.
      *
-     * @param partyId       파티 ID
-     * @param authUser      현재 로그인한 파티장 (파티장 여부 검증)
-     * @param requestDto    상태를 변경할 파티 멤버 ID와 새로운 초대 상태를 포함한 DTO
-     * @return PENDING 상태의 참가 신청 유저 목록
+     * @param partyId    파티 ID
+     * @param authUser   현재 로그인한 유저 (파티장 여부 검증을 위해 사용)
+     * @param requestDto 상태를 변경할 파티 멤버 ID와 새로운 초대 상태를 포함한 DTO
      * @throws CustomException NOT_PARTY_LEADER: "이 작업은 파티장만 수행할 수 있습니다."
+     * @throws CustomException PARTY_MEMBER_NOT_FOUND: "해당 파티 멤버를 찾을 수 없습니다."
      */
     @Transactional
-    public List<PartyMemberUpdateRequest> handleJoinRequests(Long partyId, AuthUser authUser, PartyMemberUpdateRequest requestDto) {
-        // 파티장 여부 검증
+    public void handleJoinRequest(Long partyId, AuthUser authUser, PartyMemberUpdateRequest requestDto) {
         User user = User.fromAuthUser(authUser);
         Party party = partyRepository.findByIdAndCreatorId(partyId, user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_PARTY_LEADER));
 
-        // 파티 멤버 상태 업데이트: DTO에서 파티 멤버 ID와 초대 상태를 가져옴
         Long partyMemberId = requestDto.getUserId();
         PartyMemberInviteStatus inviteStatus = requestDto.getInviteStatus();
 
+        // PartyMemberService의 메소드를 직접 호출하지 않고 해당 기능을 PartyService에 옮김
         if (partyMemberId != null && inviteStatus != null) {
+            // 초대 상태 업데이트 로직을 직접 구현합니다.
             PartyMember partyMember = partyMemberRepository.findById(partyMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
             partyMember.updateInviteStatus(inviteStatus);
             partyMemberRepository.save(partyMember);
         }
 
-        // 파티 멤버 신청 목록 조회 및 반환
-        List<PartyMember> partyMembers = partyMemberRepository.findByPartyId(partyId);
-        List<PartyMemberUpdateRequest> requests = new ArrayList<>();
+        // 파티 상태 변경
+        verifyPartyStatus(party);
+    }
 
-        // PENDING 상태인 파티 멤버만 추가
+    private void verifyPartyStatus(Party party) {
+        int acceptedMemberCount = 0;
+        List<PartyMember> partyMembers = party.getPartyMembers();
         for (PartyMember member : partyMembers) {
-            if (member.getInviteStatus() == PartyMemberInviteStatus.PENDING) {
-                PartyMemberUpdateRequest updateRequest = new PartyMemberUpdateRequest(member.getUser().getId(), member.getInviteStatus());
-                requests.add(updateRequest);
+            if (member.getInviteStatus() == PartyMemberInviteStatus.ACCEPTED) {
+                acceptedMemberCount++;
             }
         }
 
-        // 파티 멤버가 수락된 사람의 숫자와 파티 엔티티에 등록 된 파티 인원 수가 같으면 파티의 상태를 조인으로 바꿔주기.
-
-        return requests;
+        // 현재 상태를 확인하여, 상태 변경이 필요한지 판단
+        if (acceptedMemberCount == party.getMembersCount() && party.getStatus() != PartyStatus.JOINED) {
+            party.updateStatus(PartyStatus.JOINED); // 파티 상태를 JOINED(참여)로 업데이트
+            partyRepository.save(party);
+        }
     }
 
     /**

@@ -46,15 +46,7 @@ public class AuthServiceImpl implements AuthService {
 
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
 
-        if (!encodedPassword.equals(signupRequest.getPassword())) {
-            throw new CustomException(ErrorCode.ENCODING_FAILED);
-        }
-
         UserRole userRole = UserRole.of(signupRequest.getUserRole());
-
-        if (userRole == UserRole.ROLE_USER || userRole == UserRole.ROLE_ADMIN) {
-            throw new CustomException(ErrorCode.USER_ROLE_NOT_FOUND);
-        }
 
         User newUser = new User(
                 signupRequest.getEmail(),

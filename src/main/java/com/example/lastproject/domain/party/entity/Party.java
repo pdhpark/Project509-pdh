@@ -4,7 +4,6 @@ import com.example.lastproject.common.Timestamped;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.party.enums.PartyStatus;
 import com.example.lastproject.domain.partymember.entity.PartyMember;
-import com.example.lastproject.domain.partymember.enums.PartyMemberInviteStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -85,6 +84,11 @@ public class Party extends Timestamped {
     // 파티 생성자 확인
     public boolean isCreator(Long userId) {
         return this.creatorId.equals(userId);
+    }
+
+    // 파티 상태 업데이트
+    public void updateStatus(PartyStatus newStatus) {
+        this.partyStatus = newStatus;
     }
 
     public PartyStatus getStatus() {

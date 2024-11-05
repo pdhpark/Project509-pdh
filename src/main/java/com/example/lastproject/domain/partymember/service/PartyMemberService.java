@@ -31,21 +31,7 @@ public class PartyMemberService {
     private final PartyService partyService;
 
     /**
-     * 초대 상태 업데이트 메소드
-     *
-     * @param partyMemberId 파티 멤버의 ID
-     * @param newStatus 새로운 초대 상태 (예: ACCEPTED, REJECTED)
-     * @throws CustomException PARTY_MEMBER_NOT_FOUND: "파티 멤버를 찾을 수 없습니다."
-     */
-    public void updateInviteStatus(Long partyMemberId, PartyMemberInviteStatus newStatus) {
-        PartyMember partyMember = partyMemberRepository.findById(partyMemberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
-
-        partyMember.updateInviteStatus(newStatus);
-    }
-
-    /**
-     * 파티원 : 파티에 참가 신청 메소드
+     * 파티원: 파티에 참가 신청
      *
      * @param partyId 파티의 ID
      * @param authUser 파티에 참가 신청하는 유저 정보
@@ -69,7 +55,7 @@ public class PartyMemberService {
     }
 
     /**
-     * 특정 파티의 모든 참가 신청서 조회 메소드
+     * 파티장 : 내가 생성한 파티에 참가 신청한 유저 목록 조회
      *
      * @param partyId 파티의 ID
      * @return List<PartyMemberUpdateRequest> 승인 대기 중인 신청서 목록

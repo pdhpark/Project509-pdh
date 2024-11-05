@@ -1,12 +1,14 @@
 package com.example.lastproject.domain.party.controller;
 
 import com.example.lastproject.common.dto.AuthUser;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.party.dto.request.PartyCreateRequest;
 import com.example.lastproject.domain.party.dto.request.PartyUpdateRequest;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.party.service.PartyService;
 import com.example.lastproject.domain.partymember.dto.request.PartyMemberUpdateRequest;
 import com.example.lastproject.domain.partymember.dto.response.PartyMemberResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,21 +42,22 @@ public class PartyController {
     }
 
     /**
-     * 파티장: 내가 생성한 파티에 참가 신청한 유저 조회 및 상태 변경
+     * 파티장: 내가 생성한 파티에 참가 신청한 유저 상태 변경
      *
      * @param partyId       파티 ID
      * @param authUser      현재 로그인한 파티장 (파티장 여부 검증)
      * @param requestDto    상태를 변경할 파티 멤버 ID와 새로운 초대 상태를 포함한 DTO
-     * @return 참가 신청 유저 목록
+     * @return 상태 변경 결과
+     * @throws CustomException NOT_PARTY_LEADER: "이 작업은 파티장만 수행할 수 있습니다."
      */
     @PatchMapping("/{partyId}/join-requests")
-    public ResponseEntity<List<PartyMemberUpdateRequest>> handleJoinRequests(
+    public ResponseEntity<Void> handleJoinRequest(
             @PathVariable Long partyId,
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestBody PartyMemberUpdateRequest requestDto) {
+            @Valid @RequestBody PartyMemberUpdateRequest requestDto) {
 
-        List<PartyMemberUpdateRequest> requests = partyService.handleJoinRequests(partyId, authUser, requestDto);
-        return ResponseEntity.ok(requests);
+        partyService.handleJoinRequest(partyId, authUser, requestDto);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -123,7 +126,7 @@ public class PartyController {
      * @param authUser 현재 로그인한 사용자
      * @return 사용자가 신청한 파티 목록
      */
-    @GetMapping("/my-applications")
+    @GetMapping("/my-parties")
     public ResponseEntity<List<PartyResponse>> getPartiesUserApplied(
             @AuthenticationPrincipal AuthUser authUser) {
         List<PartyResponse> responses = partyService.getPartiesUserApplied(authUser);
