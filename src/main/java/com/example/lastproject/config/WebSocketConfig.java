@@ -1,6 +1,7 @@
 package com.example.lastproject.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -20,6 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
+    @Value("${allowedOrigin}")
+    private String allowedOrigin;
+
     /**
      * 클라이언트가 Websocket서버에 접속하기 위해 사용할 메서드
      * SockJS() : Websocket을 지원하지 않는 브라우저에 대해서도 Websocket처럼 동작하게 해줌
@@ -33,7 +37,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         //JWT인증을 위해 Interceptor 추가
 
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:8080")
+                .setAllowedOriginPatterns(allowedOrigin)
                 .addInterceptors(jwtHandshakeInterceptor)
                 .withSockJS();
     }
