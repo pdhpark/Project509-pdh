@@ -11,19 +11,19 @@ import java.time.format.DateTimeFormatter;
 @ToString
 public class PartyResponse {
 
-    private Long id;
-    private String marketName;
-    private String marketAddress;
-    private Long itemId;
-    private String category;
-    private int itemCount;
-    private String itemUnit;
-    private String formattedStartTime;
-    private String formattedEndTime;
-    private int membersCount;
-    private PartyStatus partyStatus;
+    private final Long id;
+    private final String marketName;
+    private final String marketAddress;
+    private final Long itemId;
+    private final String category;
+    private final int itemCount;
+    private final String itemUnit;
+    private final String formattedStartTime;
+    private final String formattedEndTime;
+    private final int membersCount;
+    private final PartyStatus partyStatus;
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
     public PartyResponse(Party party) {
         this.id = party.getId();

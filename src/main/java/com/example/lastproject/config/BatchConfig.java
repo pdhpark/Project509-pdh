@@ -32,21 +32,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Job => 전체 배치처리 과정을 추상화한 클래스 : 배치의 실행 단위로 전체 배치 작업을 정의
- * Step => Job 의 세부 실행 단위, Job 은 여러개의 Step 을 가질수 있음
- * 각 Step 은 Reader, Processor, Writer 로 이루어져 있음
- * Reader : 외부 데이터(파일, DB, API)를 읽어오며 읽어온 데이터를 Processor 에 전달
- * Processor : 읽어온 데이터를 가공하거나 변환후 Writer 에 전달
- * Writer : 처리된 데이터를 DB에 저장함
- * Batch 의 로직 흐름[청크기반] : JobLauncher => Job => Step(Reader => Processor => Writer)
- * 청크 기반의 배치처리의 장점 : 데이터를 청크단위로 묶어서 처리하여 최적화가능, 대용량 데이터에도 안정적인 처리가능
- */
 @Slf4j
 @Configuration
 @EnableBatchProcessing
 @RequiredArgsConstructor
 public class BatchConfig {
+
+    /**
+     * Job => 전체 배치처리 과정을 추상화한 클래스 : 배치의 실행 단위로 전체 배치 작업을 정의
+     * Step => Job 의 세부 실행 단위, Job 은 여러개의 Step 을 가질수 있음
+     * 각 Step 은 Reader, Processor, Writer 로 이루어져 있음
+     * Reader : 외부 데이터(파일, DB, API)를 읽어오며 읽어온 데이터를 Processor 에 전달
+     * Processor : 읽어온 데이터를 가공하거나 변환후 Writer 에 전달
+     * Writer : 처리된 데이터를 DB에 저장함
+     * Batch 의 로직 흐름[청크기반] : JobLauncher => Job => Step(Reader => Processor => Writer)
+     * 청크 기반의 배치처리의 장점 : 데이터를 청크단위로 묶어서 처리하여 최적화가능, 대용량 데이터에도 안정적인 처리가능
+     */
 
     @Value("${API_URL:}")
     private String apiUrl;
