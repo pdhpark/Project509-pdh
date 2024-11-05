@@ -3,9 +3,12 @@ package com.example.lastproject.domain.party.dto.response;
 import com.example.lastproject.domain.party.entity.Party;
 import com.example.lastproject.domain.party.enums.PartyStatus;
 import lombok.Getter;
+import lombok.ToString;
+
 import java.time.format.DateTimeFormatter;
 
 @Getter
+@ToString
 public class PartyResponse {
 
     private Long id;

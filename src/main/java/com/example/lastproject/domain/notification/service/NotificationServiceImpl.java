@@ -196,24 +196,24 @@ public class NotificationServiceImpl implements NotificationService {
      * @param authUser 요청을 보낸 인증된 사용자 정보
      * @param chatRoomResponse 생성된 파티의 채팅창
      */
-//    @Transactional
-//    @Override
-//    public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
-//        User receiver = User.fromAuthUser(authUser);
-//        String content = "참가 신청한 파티의 채팅창이 생성되었습니다.";
-//        String redirectUrl = clientBasicUrl + "/chat/history/" + chatRoomResponse.getId();
-//
-//        // Notification 엔티티 생성
-//        Notification notification = Notification.builder()
-//                .notificationType(NotificationType.CHAT_CREATE)
-//                .content(content)
-//                .url(redirectUrl)
-//                .receiver(receiver)
-//                .isRead(false) // 기본값 설정
-//                .build();
-//
-//        send(authUser, notification);
-//    }
+    @Transactional
+    @Override
+    public void notifyUsersAboutPartyChatCreation(AuthUser authUser, ChatRoomResponse chatRoomResponse) {
+        User receiver = User.fromAuthUser(authUser);
+        String content = "참가 신청한 파티의 채팅창이 생성되었습니다.";
+        String redirectUrl = clientBasicUrl + "/chat/history/" + chatRoomResponse.getId();
+
+        // Notification 엔티티 생성
+        Notification notification = Notification.builder()
+                .notificationType(NotificationType.CHAT_CREATE)
+                .content(content)
+                .url(redirectUrl)
+                .receiver(receiver)
+                .isRead(false) // 기본값 설정
+                .build();
+
+        send(authUser, notification);
+    }
 
     /**
      * 사용자의 알림 목록을 조회합니다.
