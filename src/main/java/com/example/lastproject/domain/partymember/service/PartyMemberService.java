@@ -1,8 +1,8 @@
 package com.example.lastproject.domain.partymember.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.party.entity.Party;
 import com.example.lastproject.domain.party.repository.PartyRepository;
 import com.example.lastproject.domain.party.service.PartyService;
@@ -16,6 +16,7 @@ import com.example.lastproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,21 +31,7 @@ public class PartyMemberService {
     private final PartyService partyService;
 
     /**
-     * 초대 상태 업데이트 메소드
-     *
-     * @param partyMemberId 파티 멤버의 ID
-     * @param newStatus 새로운 초대 상태 (예: ACCEPTED, REJECTED)
-     * @throws CustomException PARTY_MEMBER_NOT_FOUND: "파티 멤버를 찾을 수 없습니다."
-     */
-    public void updateInviteStatus(Long partyMemberId, PartyMemberInviteStatus newStatus) {
-        PartyMember partyMember = partyMemberRepository.findById(partyMemberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
-
-        partyMember.updateInviteStatus(newStatus);
-    }
-
-    /**
-     * 파티원 : 파티에 참가 신청 메소드
+     * 파티원: 파티에 참가 신청
      *
      * @param partyId 파티의 ID
      * @param authUser 파티에 참가 신청하는 유저 정보
@@ -68,7 +55,7 @@ public class PartyMemberService {
     }
 
     /**
-     * 특정 파티의 모든 참가 신청서 조회 메소드
+     * 파티장 : 내가 생성한 파티에 참가 신청한 유저 목록 조회
      *
      * @param partyId 파티의 ID
      * @return List<PartyMemberUpdateRequest> 승인 대기 중인 신청서 목록
@@ -82,7 +69,7 @@ public class PartyMemberService {
         for (PartyMember member : partyMembers) {
             // 승인 대기 상태의 신청서만 추가
             if (member.getInviteStatus() == PartyMemberInviteStatus.PENDING) {
-                requests.add(new PartyMemberUpdateRequest(member.getInviteStatus()));
+                requests.add(new PartyMemberUpdateRequest(member.getUser().getId(), member.getInviteStatus()));
             }
         }
         return requests;

@@ -1,5 +1,7 @@
 package com.example.lastproject.domain.partymember.repository;
 
+import com.example.lastproject.domain.party.entity.Party;
+import com.example.lastproject.domain.party.enums.PartyStatus;
 import com.example.lastproject.domain.partymember.entity.PartyMember;
 import com.example.lastproject.domain.partymember.enums.PartyMemberInviteStatus;
 import com.example.lastproject.domain.partymember.enums.PartyMemberRole;
@@ -17,6 +19,7 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Long> 
     Optional<PartyMember> findByPartyIdAndUserId(Long partyId, Long userId);
 
     List<PartyMember> findByUserId(Long userId);
+    List<Party> findAllByStatus(PartyStatus status);
 
     Optional<PartyMember> findByPartyIdAndUserIdAndRole(Long partyId, Long userId, PartyMemberRole role);
 

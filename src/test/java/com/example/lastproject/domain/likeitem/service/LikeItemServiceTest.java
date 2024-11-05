@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.likeitem.service;
 
-import com.example.lastproject.common.CustomException;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.service.ItemServiceImpl;
 import com.example.lastproject.domain.likeitem.dto.response.LikeItemResponse;

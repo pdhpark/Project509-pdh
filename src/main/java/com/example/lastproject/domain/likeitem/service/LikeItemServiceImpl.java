@@ -1,8 +1,8 @@
 package com.example.lastproject.domain.likeitem.service;
 
-import com.example.lastproject.common.CustomException;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.service.ItemService;
 import com.example.lastproject.domain.likeitem.dto.response.LikeItemResponse;

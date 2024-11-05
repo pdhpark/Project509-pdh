@@ -1,7 +1,7 @@
 package com.example.lastproject.domain.user.entity;
 
 import com.example.lastproject.common.Timestamped;
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.likeitem.entity.LikeItem;
 import com.example.lastproject.domain.user.dto.request.UserUpdateRequest;
 import com.example.lastproject.domain.user.enums.UserRole;
@@ -65,10 +65,19 @@ public class User extends Timestamped {
     }
 
     public static User fromAuthUser(AuthUser authUser) {
+
+        /*
+        authUser 는 로그인이 완료되었을 때만 생기는 DTO, 애초에 null 일 수 없는 이유
+        -> 로그인 실패 처리가 될 것임.
+        */
+
         return new User(
                 authUser.getUserId(),
                 authUser.getEmail(),
-                UserRole.of(authUser.getAuthorities().stream().findFirst().get().getAuthority())
+                UserRole.of(authUser.getAuthorities().stream()
+                        .findFirst()
+                        .get()
+                        .getAuthority())
         );
     }
 

@@ -1,6 +1,6 @@
 package com.example.lastproject.domain.likeitem.service;
 
-import com.example.lastproject.domain.auth.entity.AuthUser;
+import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.domain.likeitem.dto.response.LikeItemResponse;
 
 import java.util.List;
