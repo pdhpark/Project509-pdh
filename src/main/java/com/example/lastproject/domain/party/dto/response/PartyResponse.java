@@ -23,9 +23,11 @@ public class PartyResponse {
     private final int membersCount;
     private final PartyStatus partyStatus;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
     public PartyResponse(Party party) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+
         this.id = party.getId();
         this.marketName = party.getMarketName();
         this.marketAddress = party.getMarketAddress();

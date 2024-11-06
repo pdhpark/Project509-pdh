@@ -10,7 +10,10 @@ public class PenaltyRequest {
     private List<Long> userIds;
 
     public PenaltyRequest(List<Long> userIds) {
+        this.userIds = userIds;
+    }
 
+    public PenaltyRequest() {
     }
 
 }
