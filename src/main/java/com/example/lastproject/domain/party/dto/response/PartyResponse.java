@@ -23,7 +23,6 @@ public class PartyResponse {
     private final int membersCount;
     private final PartyStatus partyStatus;
 
-
     public PartyResponse(Party party) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
