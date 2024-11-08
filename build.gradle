@@ -4,8 +4,11 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.6'
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
 
 java {
 	toolchain {
@@ -13,14 +16,39 @@ java {
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+allprojects {
+	group = 'com.example'
+	version = '0.0.1-SNAPSHOT'
+
+	repositories {
+		mavenCentral()
 	}
 }
 
-repositories {
-	mavenCentral()
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'io.spring.dependency-management'
+
+	dependencies {
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		compileOnly 'org.projectlombok:lombok'
+		runtimeOnly 'com.h2database:h2'
+		runtimeOnly 'com.mysql:mysql-connector-j'
+		annotationProcessor 'org.projectlombok:lombok'
+
+		// Spring batch
+		implementation 'org.springframework.boot:spring-boot-starter-batch'
+		testImplementation 'org.springframework.boot:spring-boot-starter-batch'
+
+		// WebClient
+		implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	}
 }
 
 dependencies {
@@ -41,10 +69,6 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
-
-	// Spring batch
-	implementation 'org.springframework.boot:spring-boot-starter-batch'
-	testImplementation 'org.springframework.boot:spring-boot-starter-batch'
 
 	// Mockito
 	testImplementation 'org.mockito:mockito-core:5.14.2'
@@ -75,13 +99,5 @@ dependencies {
 
 	// H2 Database (테스트용)
 	testImplementation 'com.h2database:h2'
-
-	// WebClient
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
-
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}

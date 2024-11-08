@@ -1,7 +1,7 @@
-package com.example.lastproject.config;
+package com.example.modulebatch.batchconfig;
 
-import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
+import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
 import jakarta.annotation.PostConstruct;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;

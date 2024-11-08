@@ -1,4 +1,4 @@
-package com.example.lastproject.config;
+package com.example.modulebatch.batchconfig;
 
 import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
