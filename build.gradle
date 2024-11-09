@@ -16,8 +16,29 @@ java {
     }
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+// 루트 프로젝트 의존성(의존성 추가는 여기다 해주세요)
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // jwt
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    // notifications
+    implementation 'org.springframework.boot:spring-boot-starter-web-services'
+
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // querydsl 추가
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 allprojects {
@@ -32,13 +53,13 @@ allprojects {
         mavenCentral()
     }
 
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-        implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
-        implementation 'org.springframework.boot:spring-boot-starter-security'
         implementation 'org.springframework.boot:spring-boot-starter-web'
-        implementation 'org.springframework.boot:spring-boot-starter-validation'
         compileOnly 'org.projectlombok:lombok'
         runtimeOnly 'com.h2database:h2'
         runtimeOnly 'com.mysql:mysql-connector-j'
@@ -57,27 +78,12 @@ allprojects {
         // JUnit 5 (Jupiter)
         testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 
-        // jwt
-        compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-        runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-        runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
-
-        // notifications
-        implementation 'org.springframework.boot:spring-boot-starter-web-services'
-
-        // WebSocket
-        implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
-        // querydsl 추가
-        implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-        annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-        annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-
         // H2 Database (테스트용)
         testImplementation 'com.h2database:h2'
 
         // WebClient
         implementation 'org.springframework.boot:spring-boot-starter-webflux'
+        // Jackson
+        compileOnly 'com.googlecode.json-simple:json-simple:1.1.1'
     }
 }

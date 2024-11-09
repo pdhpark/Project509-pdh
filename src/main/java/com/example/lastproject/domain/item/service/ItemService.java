@@ -6,6 +6,7 @@ import com.example.lastproject.domain.item.entity.Item;
 import java.util.List;
 
 public interface ItemService {
+
     // 품목 조회
     List<ItemResponse> searchItems(String keyword);
 

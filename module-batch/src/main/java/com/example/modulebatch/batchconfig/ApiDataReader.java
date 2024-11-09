@@ -20,15 +20,15 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
-/**
- * BatchConfig 설정에 들어가는 클래스로
- * api 요청후 응답데이터를 받아오는 Reader 클래스
- * null 을 리턴하면 요청종료
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ApiDataReader implements ItemStreamReader<String> {
+
+    /*
+    BatchConfig 설정에 들어가는 클래스
+    api 요청후 응답데이터를 받아오는 Reader 클래스 null 을 리턴하면 요청종료
+    */
 
     // 환경변수 설정값이 없으면 빈 문자열을 주입
     @Value("${ITEM_API_KEY:}")
