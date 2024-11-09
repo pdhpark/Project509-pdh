@@ -1,3 +1,2 @@
 rootProject.name = 'Project509'
-include("module-batch")
-
+include ':module-batch'

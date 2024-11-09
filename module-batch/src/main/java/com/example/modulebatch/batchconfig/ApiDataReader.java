@@ -1,7 +1,7 @@
 package com.example.modulebatch.batchconfig;
 
-import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.enums.ErrorCode;
+import com.example.lastproject.common.exception.CustomException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,6 +111,10 @@ public class ApiDataReader implements ItemStreamReader<String> {
 
         // 읍답데이터
         String jsonData = response.block();
+
+        if (jsonData.isBlank()) {
+            throw new CustomException(ErrorCode.API_CONNECTION_ERROR);
+        }
 
         // 응답데이터에서 총 페이지수 추출
         try {
