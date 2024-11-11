@@ -1,6 +1,5 @@
 package com.example.lastproject.domain.party.service;
 
-import com.example.lastproject.common.exception.CustomException;
 import com.example.lastproject.common.annotation.LogisticsNotify;
 import com.example.lastproject.common.dto.AuthUser;
 import com.example.lastproject.common.enums.ErrorCode;
@@ -25,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,8 +73,14 @@ public class PartyService {
             throw new CustomException(ErrorCode.INVALID_ITEM_COUNT);
         }
 
-        // 시간 검증
-        if (request.getStartTime().isAfter(request.getEndTime())) {
+        // 날짜 설정
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String currentYear = String.valueOf(Year.now().getValue());
+        LocalDateTime startDateTime = LocalDateTime.parse(currentYear + "-" + request.getStartTime(), dateTimeFormatter);
+        LocalDateTime endDateTime = LocalDateTime.parse(currentYear + "-" + request.getEndTime(), dateTimeFormatter);
+
+        // 시작시간이 종료시간 보다 이전인지 확인
+        if (startDateTime.isAfter(endDateTime)) {
             throw new CustomException(ErrorCode.INVALID_TIME_RANGE);
         }
 
@@ -88,8 +96,8 @@ public class PartyService {
                 item,
                 request.getItemCount(),
                 request.getItemUnit(),
-                request.getStartTime(),
-                request.getEndTime(),
+                startDateTime,
+                endDateTime,
                 request.getMembersCount(),
                 user.getId()
         );
@@ -106,7 +114,7 @@ public class PartyService {
         );
 
         partyMemberRepository.save(partyMember);
-        return new PartyResponse(party);
+        return new PartyResponse(party, "Leader");
     }
 
     /**
@@ -124,13 +132,12 @@ public class PartyService {
         Party party = partyRepository.findByIdAndCreatorId(partyId, user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_PARTY_LEADER));
 
-        Long partyMemberId = requestDto.getUserId();
+        Long userId = requestDto.getUserId();
         PartyMemberInviteStatus inviteStatus = requestDto.getInviteStatus();
 
-        // PartyMemberService의 메소드를 직접 호출하지 않고 해당 기능을 PartyService에 옮김
-        if (partyMemberId != null && inviteStatus != null) {
-            // 초대 상태 업데이트 로직을 직접 구현합니다.
-            PartyMember partyMember = partyMemberRepository.findById(partyMemberId)
+        if (userId != null && inviteStatus != null) {
+            // 파티 ID와 사용자 ID를 비교하여 파티 멤버 조회
+            PartyMember partyMember = partyMemberRepository.findByPartyIdAndUserId(partyId, userId)
                     .orElseThrow(() -> new CustomException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
             partyMember.updateInviteStatus(inviteStatus);
         }
@@ -221,8 +228,17 @@ public class PartyService {
         Item item = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
 
-        party.updateDetails(item, request.getItemCount(), request.getItemUnit(), request.getStartTime(), request.getEndTime(), request.getMembersCount());
-        return new PartyResponse(party);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String currentYear = String.valueOf(Year.now().getValue());
+        LocalDateTime startDateTime = LocalDateTime.parse(currentYear + "-" + request.getStartTime(), dateTimeFormatter);
+        LocalDateTime endDateTime = LocalDateTime.parse(currentYear + "-" + request.getEndTime(), dateTimeFormatter);
+
+        if (startDateTime.isAfter(endDateTime)) {
+            throw new CustomException(ErrorCode.INVALID_TIME_RANGE);
+        }
+
+        party.updateDetails(item, request.getItemCount(), request.getItemUnit(), startDateTime, endDateTime, request.getMembersCount());
+        return new PartyResponse(party, "Leader");
     }
 
     /**
@@ -238,23 +254,47 @@ public class PartyService {
         party.cancelParty();
     }
 
-
     /**
-     * 파티원 : 본인이 참가 신청한 모든 파티 목록 조회
+     * 본인이 생성한 파티 및 참가 신청한 파티 목록 조회
      *
      * @param authUser 인증된 사용자
-     * @return List<PartyResponse> 사용자가 신청한 모든 파티 목록
+     * @return List<PartyResponse> 내가 생성한 파티와 내가 신청한 파티 목록
      */
-    public List<PartyResponse> getPartiesUserApplied(AuthUser authUser) {
+    public List<PartyResponse> getMyParties(AuthUser authUser) {
         User user = User.fromAuthUser(authUser);
-        List<PartyMember> partyMembers = partyMemberRepository.findByUserId(user.getId());
 
-        List<PartyResponse> parties = new ArrayList<>();
-        for (PartyMember member : partyMembers) {
-            // 모든 파티 상태를 조회
-            parties.add(new PartyResponse(member.getParty()));
+        // 내가 생성한 파티 조회
+        List<Party> createdParties = partyRepository.findAllByCreatorId(user.getId());
+
+        // 내가 참가 신청을 보낸 파티 조회
+        List<PartyMember> partyMembers = partyMemberRepository.findByUserId(user.getId());
+        List<PartyResponse> partyResponses = new ArrayList<>();
+
+        // 내가 생성한 파티들 추가
+        for (Party party : createdParties) {
+            partyResponses.add(new PartyResponse(party, "Leader"));
         }
-        return parties;
+
+        // 내가 신청한 파티들 추가 (role: "MEMBER", 중복 제거)
+        for (PartyMember member : partyMembers) {
+            Party party = member.getParty();
+            boolean isAlreadyAdded = false;
+
+            // partyResponses 리스트에서 중복된 파티 확인
+            for (PartyResponse response : partyResponses) {
+                if (response.getId().equals(party.getId())) {
+                    isAlreadyAdded = true;
+                    break; // 중복이 있으면 더 이상 확인하지 않음
+                }
+            }
+
+            // 중복되지 않은 경우만 추가
+            if (!isAlreadyAdded) {
+                partyResponses.add(new PartyResponse(party, "Member"));
+            }
+        }
+
+        return partyResponses;
     }
 
     /**
