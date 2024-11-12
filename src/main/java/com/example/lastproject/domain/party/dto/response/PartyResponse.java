@@ -22,8 +22,9 @@ public class PartyResponse {
     private final String formattedEndTime;
     private final int membersCount;
     private final PartyStatus partyStatus;
+    private String role;
 
-    public PartyResponse(Party party) {
+    public PartyResponse(Party party, String role) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
@@ -38,6 +39,7 @@ public class PartyResponse {
         this.formattedEndTime = party.getEndTime().format(formatter);
         this.membersCount = party.getMembersCount();
         this.partyStatus = party.getPartyStatus();
+        this.role = role;
     }
 
 }
