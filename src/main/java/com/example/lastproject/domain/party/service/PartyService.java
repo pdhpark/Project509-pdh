@@ -8,6 +8,7 @@ import com.example.lastproject.domain.item.entity.Item;
 import com.example.lastproject.domain.item.repository.ItemRepository;
 import com.example.lastproject.domain.party.dto.request.PartyCreateRequest;
 import com.example.lastproject.domain.party.dto.request.PartyUpdateRequest;
+import com.example.lastproject.domain.party.dto.response.NearByPartyResponse;
 import com.example.lastproject.domain.party.dto.response.PartyResponse;
 import com.example.lastproject.domain.party.entity.Party;
 import com.example.lastproject.domain.party.enums.PartyStatus;
@@ -93,8 +94,8 @@ public class PartyService {
         Party party = new Party(
                 request.getMarketName(),
                 request.getMarketAddress(),
-                request.getX(),
-                request.getY(),
+                request.getLatitude(),
+                request.getLongitude(),
                 item,
                 request.getItemCount(),
                 request.getItemUnit(),
@@ -319,6 +320,14 @@ public class PartyService {
             }
         }
         return false;
+    }
+
+    public List<NearByPartyResponse> getNearByParties(AuthUser authUser) {
+        User user = User.fromAuthUser(authUser);
+
+        List<NearByPartyResponse> responses = partyRepository.getNearByParties(null,null);
+
+        return responses;
     }
 
 }
