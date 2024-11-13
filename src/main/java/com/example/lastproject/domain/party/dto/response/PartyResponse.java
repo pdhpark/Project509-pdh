@@ -5,6 +5,7 @@ import com.example.lastproject.domain.party.enums.PartyStatus;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -14,6 +15,8 @@ public class PartyResponse {
     private final Long id;
     private final String marketName;
     private final String marketAddress;
+    private BigDecimal x;
+    private BigDecimal y;
     private final Long itemId;
     private final String category;
     private final int itemCount;
@@ -31,6 +34,8 @@ public class PartyResponse {
         this.id = party.getId();
         this.marketName = party.getMarketName();
         this.marketAddress = party.getMarketAddress();
+        this.x = party.getX();
+        this.y = party.getY();
         this.itemId = party.getItem().getId();
         this.category = party.getItem().getCategory();
         this.itemCount = party.getItemCount();

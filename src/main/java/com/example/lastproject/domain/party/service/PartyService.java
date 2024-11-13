@@ -93,6 +93,8 @@ public class PartyService {
         Party party = new Party(
                 request.getMarketName(),
                 request.getMarketAddress(),
+                request.getX(),
+                request.getY(),
                 item,
                 request.getItemCount(),
                 request.getItemUnit(),
