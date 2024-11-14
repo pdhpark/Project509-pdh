@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Getter
-public class NearByPartyResponse {
+public class NearbyPartyResponse {
 
     private final long partyId;
     private final String marketName;
@@ -16,7 +16,7 @@ public class NearByPartyResponse {
     private final long itemId;
 
     @QueryProjection
-    public NearByPartyResponse(Long partyId, String marketName, String marketAddress, BigDecimal locationRange, Long itemId) {
+    public NearbyPartyResponse(Long partyId, String marketName, String marketAddress, BigDecimal locationRange, Long itemId) {
         this.partyId = partyId;
         this.marketName = marketName;
         this.marketAddress = marketAddress;
