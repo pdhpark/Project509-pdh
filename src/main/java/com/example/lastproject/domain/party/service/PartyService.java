@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -322,10 +323,19 @@ public class PartyService {
         return false;
     }
 
+    /**
+     * @param authUser 인증된 사용자
+     * @return 사용자가 등록한 위치 반경 10KM 내의 파티목록
+     */
     public List<NearByPartyResponse> getNearByParties(AuthUser authUser) {
-        User user = User.fromAuthUser(authUser);
+        User user = userRepository.findById(authUser.getUserId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTY_NOT_FOUND));
 
-        List<NearByPartyResponse> responses = partyRepository.getNearByParties(null,null);
+        // 위경도
+        BigDecimal latitude = user.getLatitude();
+        BigDecimal longitude = user.getLongitude();
+
+        List<NearByPartyResponse> responses = partyRepository.getNearByParties(latitude, longitude);
 
         return responses;
     }
