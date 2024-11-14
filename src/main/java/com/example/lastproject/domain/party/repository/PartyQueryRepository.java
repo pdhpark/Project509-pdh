@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface PartyQueryRepository {
     List<NearbyPartyResponse> getNearByParties(BigDecimal latitude, BigDecimal longitude);
-    List<NearbyBookmarkUserDto> getUserIdWithDistanceNearbyParty(BigDecimal latitude, BigDecimal longitude);
+    List<NearbyBookmarkUserDto> getUserIdWithDistanceNearbyParty(BigDecimal latitude, BigDecimal longitude, long itemId);
 }
