@@ -30,10 +30,10 @@ public class Party extends Timestamped {
     @Column(name = "market_address", nullable = false)
     private String marketAddress;
 
-    @Column(name = "x", nullable = false)
+    @Column(name = "latitude", nullable = false)
     private BigDecimal latitude;
 
-    @Column(name = "y", nullable = false)
+    @Column(name = "longitude", nullable = false)
     private BigDecimal longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)

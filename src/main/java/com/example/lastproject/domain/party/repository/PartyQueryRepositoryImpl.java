@@ -19,12 +19,12 @@ public class PartyQueryRepositoryImpl implements PartyQueryRepository {
 
     private final JPAQueryFactory q;
 
-    public List<NearByPartyResponse> getNearByParties(BigDecimal x, BigDecimal y) {
+    public List<NearByPartyResponse> getNearByParties(BigDecimal latitude, BigDecimal longitude) {
 
         // 거리 계산을 위한 하버사인 공식
         NumberTemplate<BigDecimal> distance = numberTemplate(BigDecimal.class,
                 "6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({0})) * sin(radians({1})))",
-                x, party.x, party.y, y);
+                latitude, party.latitude, party.longitude, longitude);
 
         List<NearByPartyResponse> results = q
                 .select(
@@ -37,4 +37,5 @@ public class PartyQueryRepositoryImpl implements PartyQueryRepository {
 
         return results;
     }
+
 }
