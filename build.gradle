@@ -88,5 +88,8 @@ allprojects {
 
         implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5-jakarta'
 
+        implementation 'org.springframework.boot:spring-boot-starter-batch'
+        testImplementation 'org.springframework.boot:spring-boot-starter-batch'
+
     }
 }
