@@ -1,13 +1,16 @@
 name: CI/CD
 
-# main 브렌치 pull request 에 배포실행
+# main 브렌치 push or pull request 에 실행
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  CI:
+  build:
     runs-on: ubuntu-latest
     steps:
       # 최근 커밋된 코드 저장소 불러오기
@@ -28,5 +31,37 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -f Dockerfile-batch -t project509-batch:latest .
-          docker tag project509-batch:latest circledragon/cd-test:latest
-          docker push circledragon/cd-test:latest
+          docker tag project509-batch:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Docker image pull & Deploy to EC2
+        uses: appleboy/ssh-action@master
+        # EC2 접속
+        with:
+          host: ${{ secrets.EC2_IP }} # PUBLIC IP
+          username: ec2-user
+          key: ${{secrets.BATCH_EC2_KEY}} # SSH 비공개 키값
+          # Docker pull & run
+          script: |
+            # EC2 내에서 Docker 로그인
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            # Docker 이미지 풀 및 실행
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
+            sudo docker stop $(sudo docker ps -a -q)
+            sudo docker run -d \
+              -p 8080:8080 \
+              -e API_PORT=${{ secrets.API_PORT }} \
+              -e API_URL=${{ secrets.API_URL }} \
+              -e RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }} \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e ITEM_API_KEY=${{ secrets.ITEM_API_KEY }} \
+              ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
+            # 중지된 컨테이너 제거, 사용하지 않는 도커 이미지 제거
+            sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q)
+            sudo docker image prune -a -f
