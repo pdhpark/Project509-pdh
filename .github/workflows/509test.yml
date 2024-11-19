@@ -40,6 +40,7 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
+          cat ./src/main/resources/application.yml
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
