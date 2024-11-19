@@ -32,15 +32,15 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
-          
-      - name: Build with Gradle
-        run: ./gradlew build -x test
-
+        
       - name: Write Profile
         run: |
           echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
           cat ./src/main/resources/application.yml
+
+      - name: Build with Gradle
+        run: ./gradlew build -x test
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
