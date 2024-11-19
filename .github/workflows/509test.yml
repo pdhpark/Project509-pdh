@@ -58,8 +58,8 @@ jobs:
           ECR_REPOSITORY="rednotice-ecr"
           
           docker build -f Dockerfile -t 509test:latest .
-          docker tag 509test:latest 509test/509test:latest
-          docker push 509test/509test:latest
+          docker tag 509test:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/509test:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/509test:latest
 
   deploy:
     name: Deploy to EC2
@@ -77,7 +77,7 @@ jobs:
           script: |
             REGION="ap-northeast-2"
             ECR_REPOSITORY="rednotice-ecr"
-            IMAGE_TAG="latest"
+            IMAGE_TAG="latest"          
             AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
 
             docker stop app || true
