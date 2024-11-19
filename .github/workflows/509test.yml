@@ -35,8 +35,8 @@ jobs:
         
       - name: Write Profile
         run: |
-          echo "${{ secrets.APPLICATION }}" >> application.yml
-          echo "${{ secrets.APPLICATION_PROD }}" >> application-prod.yml
+          echo "${{ secrets.APPLICATION }}" >> ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_PROD }}" >> ./src/main/resources/application-prod.yml
 
       - name: Copy Profiles to EC2
         uses: appleboy/scp-action@v0.1.3
@@ -44,9 +44,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: application.yml application-prod.yml
-          target: /home/ec2-user/project509/src/main/resources/
-
+          source: ./src/main/resources/application*.yml
+          target: /home/ec2-user/project509
 
       - name: Build with Gradle
         run: ./gradlew build -x test
