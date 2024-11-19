@@ -22,6 +22,11 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Write Profile
+        run: |
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
