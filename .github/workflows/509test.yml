@@ -54,7 +54,7 @@ jobs:
           REGION="ap-northeast-2"
           ECR_REPOSITORY="rednotice-ecr"
           
-          docker build -f Doclerfile -t 509test:latest .
+          docker build -f Dockerfile -t 509test:latest .
           docker tag 509test:latest 509test/509test:latest
           docker push 509test/509test:latest
 
