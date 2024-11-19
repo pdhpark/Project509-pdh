@@ -69,11 +69,11 @@ jobs:
     steps:
       - name: Debug Environment Variables
         run: |
-          echo "DB_NAME=${{ secrets.DB_NAME }}"
-          echo "DB_URL=${{ secrets.DB_URL }}"
-          echo "CLIENT_BASIC_URL=${{ secrets.CLIENT_BASIC_URL }}"
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}"
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> debug_env.txt
+          echo "DB_URL=${{ secrets.DB_URL }}" >> debug_env.txt
+          echo "CLIENT_BASIC_URL=${{ secrets.CLIENT_BASIC_URL }}" >> debug_env.txt
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> debug_env.txt
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> debug_env.txt
 
     
       - name: Docker image pull & Deploy to EC2
